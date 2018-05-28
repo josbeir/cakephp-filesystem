@@ -42,6 +42,8 @@ class FileEntity implements FileEntityInterface
      * Populate the entity
 
      * @param array $data file data
+     *
+     * @throws \Josbeir\Filesystem\Exception\FileEntityException When data contains keys that are not allowed
 
      * @return self
      */
@@ -107,6 +109,9 @@ class FileEntity implements FileEntityInterface
      * Return a human readable filesize
      *
      * @param int $precision Precision to return
+     *
+     * @deprecated Dont use, this is going to be removed soon!
+     *
      * @return string
      */
     public function humanFilesize($precision = 2)
