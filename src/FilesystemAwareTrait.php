@@ -1,8 +1,6 @@
 <?php
 namespace Josbeir\Filesystem;
 
-use Cake\Core\Configure;
-use Josbeir\Filesystem\Exception\FilesystemException;
 use Josbeir\Filesystem\FilesystemRegistry;
 
 trait FilesystemAwareTrait
