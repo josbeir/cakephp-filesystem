@@ -1,3 +1,6 @@
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
+[![Build Status](https://travis-ci.org/josbeir/cakephp-filesystem.svg?branch=master)](https://travis-ci.org/josbeir/cakephp-filesystem)
+
 # Filesystem plugin for CakePHP
 
 (WIP) CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/docs/) as it's backend.
@@ -5,7 +8,7 @@
 ## Why use it
 
 - Easy access to flysystem filesystems in your application
-- Upload abstraction, accepts $_FILES, Zend\Diactoros\UploadedFile or just a paths on the local FS
+- Upload abstraction, accepts $_FILES, Zend\Diactoros\UploadedFile or just a path on the local FS
 - Files are represented by customisable and json serialisable entities for easy storage (nosql?)
 - Filename formatting during upload, custom formatters are possible, ships with an EntityFormatter
 - You want to build your own behavior, component, middleware to integrate more upper level stuff
