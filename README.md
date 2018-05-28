@@ -83,7 +83,7 @@ class MyController extends AppController {
 
     public function upload()
     {
-        $fileEntity = $this->getFilesystem('myfs')->upload($this->resuest->getData('upload'));
+        $fileEntity = $this->getFilesystem('myfs')->upload($this->request->getData('upload'));
 
         debug($fileEntity);
     }
