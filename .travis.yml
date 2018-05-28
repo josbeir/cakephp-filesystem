@@ -1,0 +1,36 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+
+sudo: true
+
+env:
+  global:
+    - PHPCS=0
+    - PHPSTAN=0
+    - RUN_TESTS=1
+
+matrix:
+  include:
+    - php: 7.1
+      env: PHPCS=1 RUN_TESTS=0
+    - php: 7.1
+      env: PHPCS=0 RUN_TESTS=0 PHPSTAN=1
+
+before_script:
+  - sleep 7 # Work around elasticsearch startup time.
+  - phpenv rehash
+
+install:
+  - composer self-update
+  - composer install --dev
+
+script:
+  - sh -c "if [ '$RUN_TESTS' = '1' ]; then composer test; fi"
+  - sh -c "if [ '$PHPCS' = '1' ]; then composer cs-check; fi"
+  - sh -c "if [ '$PHPSTAN' = '1' ]; then composer phpstan; fi"
+
+notifications:
+  email: false
