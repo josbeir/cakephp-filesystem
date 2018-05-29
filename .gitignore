@@ -1,3 +1,4 @@
+.vscode
 /composer.lock
 /phpunit.xml
 /vendor

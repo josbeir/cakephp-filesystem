@@ -39,19 +39,17 @@ class Filesystem implements EventDispatcherInterface
      *
      * `adapter` Default flysystem adapter to use
      * `adapterArguments' Arguments to pass to the flystem adapter
+     * `filesystemArguments` Arguments passed to the Filesystem options array
      * `formatter` Formatter to be used, can also be a FQCN to a formatter class
-     * `filesystem` Arguments passed to the Filesystem options array
-     * `entityHashAlgo` Entity hashing algorithm, the hash is stored as metatada in the FileEntity class
      * `entityClass` => File entity class to use, defaults to 'FileEntity'
      */
     protected $_defaultConfig = [
         'adapter' => '\League\Flysystem\Adapter\Local',
         'adapterArguments' => [ WWW_ROOT . 'files' ],
-        'formatter' => 'Default',
-        'filesystem' => [
+        'filesystemArguments' => [
             'visibility' => 'public'
         ],
-        'entityHashAlgo' => 'md5',
+        'formatter' => 'Default',
         'entityClass' => 'Josbeir\Filesystem\FileEntity'
     ];
 
@@ -281,7 +279,7 @@ class Filesystem implements EventDispatcherInterface
 
     /**
      * Returns a new array of entities cross matched by hash
-     * When $data is not an instance of FileEntityInterface the upload method will be invoked first
+     * When $data is not an instance of FileEntityInterface the upload method will be called first.
      *
      * # configuration options
      * `removeHashes` An array of hashes matching entities to be removed after the merge has been done
