@@ -20,9 +20,11 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     /**
      * Constructor
      *
-     * @param array $entities Entities
+     * @param array|\Traversable $entities File entities array.
+     *
+     * @throws \InvalidArgumentException If passed incorrect type for items.
      */
-    public function __construct(array $entities)
+    public function __construct($entities)
     {
         if (is_array($entities)) {
             $entities = new ArrayIterator($entities);
@@ -58,6 +60,8 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     /**
      * Returns an array that can be used to describe the internal state of this
      * object.
+     *
+     * @codeCoverageIgnore
      *
      * @return array
      */

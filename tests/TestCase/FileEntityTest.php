@@ -46,6 +46,16 @@ class FileEntityTest extends TestCase
         ]);
     }
 
+    public function testStringDate()
+    {
+        $arrayData = $this->file->toArray();
+        $expected = (string)$arrayData['created'];
+        $arrayData['created'] = $expected;
+
+        $entity = new FileEntity($arrayData);
+        $this->assertEquals($expected, (string)$entity->created);
+    }
+
     public function testUnavailableAttributes()
     {
         $this->expectException('\Josbeir\Filesystem\Exception\FileEntityException');
@@ -65,5 +75,20 @@ class FileEntityTest extends TestCase
 
         $this->assertInternalType('int', $this->file->filesize);
         $this->assertInternalType('array', $this->file->toArray());
+    }
+
+    public function testGetHasHash()
+    {
+        $this->assertEquals('3ba92ed92481b4fc68842a2b3dcee525', $this->file->getHash());
+        $this->assertTrue($this->file->hasHash('3ba92ed92481b4fc68842a2b3dcee525'));
+    }
+
+    public function testMagic()
+    {
+        $json = json_encode($this->file);
+        $this->assertJson($json);
+
+        $string = (string)$this->file;
+        $this->assertEquals('dummy.png', $string);
     }
 }

@@ -5,7 +5,6 @@ use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
-use Josbeir\Filesystem\FileSourceNormalizer;
 use Josbeir\Filesystem\Filesystem;
 use Zend\Diactoros\UploadedFile;
 
@@ -45,22 +44,31 @@ class FilesystemTest extends TestCase
     public function testGetAdapter()
     {
         $shortNameAdapter = new Filesystem([
-            'adapter' => 'Local'
+            'adapter' => 'NullAdapter'
         ]);
 
         $fqcNameAdapter = new Filesystem([
-            'adapter' => 'League\Flysystem\Adapter\Local'
+            'adapter' => '\League\Flysystem\Adapter\NullAdapter'
         ]);
 
         $unexistingAdapterFs = new Filesystem([
             'adapter' => 'UnexistingAdapter'
         ]);
 
-        $this->assertInstanceOf('League\Flysystem\Adapter\Local', $shortNameAdapter->getAdapter());
-        $this->assertInstanceOf('League\Flysystem\Adapter\Local', $fqcNameAdapter->getAdapter());
+        $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $shortNameAdapter->getAdapter());
+        $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $fqcNameAdapter->getAdapter());
 
         $this->expectException('\InvalidArgumentException');
         $unexistingAdapterFs->getAdapter();
+    }
+
+    public function testSetAdapter()
+    {
+        $adapter = $this->getMockBuilder('\League\Flysystem\Adapter\NullAdapter')->getMock();
+
+        $this->manager->setAdapter($adapter);
+
+        $this->assertInstanceOf('\League\Flysystem\Adapter\NullAdapter', $this->manager->getAdapter());
     }
 
     public function testPathUpload()
@@ -147,6 +155,10 @@ class FilesystemTest extends TestCase
             ->getPath();
 
         $this->assertSame('test.png', $path);
+
+        // test invalid data passed
+        $this->expectException('\InvalidArgumentException');
+        $this->manager->setFormatter('Entity')->getFormatter()->getPath();
     }
 
     public function testEntityFormatterCustomPattern()

@@ -37,6 +37,13 @@ class FileEntityCollectionTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->last());
     }
 
+    public function testInvalidData()
+    {
+        $this->expectException('\InvalidArgumentException');
+
+        $collection = new FileEntityCollection('invalid string');
+    }
+
     protected function _dummyEntityData()
     {
         return [

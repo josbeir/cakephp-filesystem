@@ -3,6 +3,7 @@ namespace Josbeir\Filesystem;
 
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
+use Josbeir\Filesystem\Filesystem;
 use Josbeir\Filesystem\FilesystemRegistry;
 
 class FilesystemRegistryTest extends TestCase
@@ -21,6 +22,30 @@ class FilesystemRegistryTest extends TestCase
     {
         $defaultFs = FilesystemRegistry::get();
         $this->assertInstanceOf('\Josbeir\Filesystem\Filesystem', $defaultFs);
+    }
+
+    /**
+     * Test add FS
+     *
+     * @return void
+     */
+    public function testAdd()
+    {
+        $testadapter = new Filesystem([
+            'adapter' => 'TestAdapter'
+        ]);
+
+        FilesystemRegistry::add('test', $testadapter);
+
+        $this->assertEquals($testadapter, FilesystemRegistry::get('test'));
+    }
+
+    public function testReset()
+    {
+        FilesystemRegistry::get();
+        FilesystemRegistry::reset();
+
+        $this->assertFalse(FilesystemRegistry::exists('default'));
     }
 
     /**

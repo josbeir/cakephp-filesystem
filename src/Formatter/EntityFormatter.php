@@ -5,6 +5,7 @@ use Cake\Core\InstanceConfigTrait;
 use Cake\Datasource\EntityInterface;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
+use InvalidArgumentException;
 use Josbeir\Filesystem\Formatter\DefaultFormatter;
 
 /**
@@ -38,12 +39,14 @@ class EntityFormatter extends DefaultFormatter
     /**
      * (@inheritDoc)
      *
+     * @throws \Exception
+     *
      * @return string
      */
     public function getPath() : string
     {
         if (!$this->_data instanceof EntityInterface) {
-            throw new \Exception(
+            throw new InvalidArgumentException(
                 sprintf('Passed formatter data is not EntityInterface compatible (%s given)', gettype($this->_data))
             );
         }

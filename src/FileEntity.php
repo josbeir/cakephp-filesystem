@@ -64,10 +64,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
             $this->created = new Time($this->created);
         }
 
-        if (is_array($this->created)) {
-            $this->created = new Time($this->created['date'], $this->created['timezone']);
-        }
-
         if (!$this->created) {
             $this->created = Time::now();
         }
@@ -114,6 +110,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      * @param int $precision Precision to return
      *
      * @deprecated Dont use, this is going to be removed soon!
+     * @codeCoverageIgnore
      *
      * @return string
      */
@@ -175,6 +172,8 @@ class FileEntity extends ArrayObject implements FileEntityInterface
 
     /**
      * Return properties for debugging.
+     *
+     * @codeCoverageIgnore
      *
      * @return array
      */
