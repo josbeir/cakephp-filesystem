@@ -41,8 +41,10 @@ class FilesystemRegistry
      *
      * @return Filesystem
      */
-    public static function get(string $name = self::CONFIG_DEFAULT) : Filesystem
+    public static function get(string $name = null) : Filesystem
     {
+        $name = $name ?: self::CONFIG_DEFAULT;
+
         if (!self::exists($name)) {
             $config = Configure::read(static::CONFIG_PREFIX . $name);
             if (!$config) {
@@ -53,6 +55,19 @@ class FilesystemRegistry
         }
 
         return static::$_filesystems[$name];
+    }
+
+    /**
+     * Add a filesystem to the list of instances
+     *
+     * @param string $name Configuration key identifier
+     * @param Filesystem $filesystem Filesytem instance
+     *
+     * @return void
+     */
+    public static function add(string $name, Filesystem $filesystem) : void
+    {
+        static::$_filesystems[$name] = $filesystem;
     }
 
     /**

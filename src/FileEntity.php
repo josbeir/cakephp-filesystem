@@ -1,6 +1,7 @@
 <?php
 namespace Josbeir\Filesystem;
 
+use ArrayObject;
 use Cake\I18n\Time;
 use Josbeir\Filesystem\Exception\FileEntityException;
 use Josbeir\Filesystem\FileEntityInterface;
@@ -8,7 +9,7 @@ use Josbeir\Filesystem\FileEntityInterface;
 /**
  * Representation of a file entity
  */
-class FileEntity implements FileEntityInterface
+class FileEntity extends ArrayObject implements FileEntityInterface
 {
     /**
      * File data array
@@ -36,6 +37,8 @@ class FileEntity implements FileEntityInterface
     public function __construct(array $data)
     {
         $this->setData($data);
+
+        parent::__construct($this->_data);
     }
 
     /**

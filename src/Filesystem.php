@@ -7,6 +7,7 @@ use Cake\Event\EventDispatcherTrait;
 use InvalidArgumentException;
 use Josbeir\Filesystem\Exception\FilesystemException;
 use Josbeir\Filesystem\FileEntity;
+use Josbeir\Filesystem\FileEntityCollection;
 use Josbeir\Filesystem\FileSourceNormalizer;
 use Josbeir\Filesystem\FormatterInterface;
 use League\Flysystem\AdapterInterface;
@@ -250,16 +251,16 @@ class Filesystem implements EventDispatcherInterface
      * @param array $data List of files to be uploaded
      * @param array $config Formatter Arguments
      *
-     * @return FileEntityInterface[] List of files uploaded
+     * @return \Josbeir\Filesystem\FileEntityCollection List of files uploaded
      */
-    public function uploadMany(array $data, array $config = []) : array
+    public function uploadMany(array $data, array $config = []) : FileEntityCollection
     {
-        $result = [];
+        $entities = [];
         foreach ($data as $file) {
-            $result[] = $this->upload($file, $config);
+            $entities[] = $this->upload($file, $config);
         }
 
-        return $result;
+        return new FileEntityCollection($entities);
     }
 
     /**
