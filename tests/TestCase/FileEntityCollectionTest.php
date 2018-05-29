@@ -7,24 +7,43 @@ use Josbeir\Filesystem\FileEntityCollection;
 
 class FileEntityCollectionTest extends TestCase
 {
-    public function setUp()
-    {
-        $this->entities = [];
+    protected $entities = [];
 
-        for($x = 1; $x <= 20; $x++) {
-            $this->entities[] = new FileEntity([
-                'path' => uniqid() .'.ext',
-                'hash' => uniqid(),
-                'mime' => 'file/type',
-                'filesize' => 1337
-            ]);
+    public function testConstructor()
+    {
+        $entities = [];
+        for ($x = 1; $x <= 20; $x++) {
+            $entities[] = new FileEntity($this->_dummyEntityData());
         }
+
+        $collection = new FileEntityCollection($entities);
+
+        $this->assertEquals((int)20, $collection->extract('hash')->count());
     }
 
-    // public function testConstructor()
-    // {
-    //     $collection = new FileEntityCollection($this->entities);
+    public function testCreateFromArray()
+    {
+        $entities = [];
+        for ($x = 1; $x <= 2; $x++) {
+            $entities[] = $this->_dummyEntityData();
+        }
 
-    //     $this->markTestSkipped();
-    // }
+        $entities[] = new FileEntity($this->_dummyEntityData());
+
+        $collection = FileEntityCollection::createFromArray($entities);
+
+        $this->assertEquals((int)3, $collection->extract('hash')->count());
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->first());
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->last());
+    }
+
+    protected function _dummyEntityData()
+    {
+        return [
+            'path' => uniqid() . '.ext',
+            'hash' => uniqid(),
+            'mime' => 'file/type',
+            'filesize' => 1337
+        ];
+    }
 }

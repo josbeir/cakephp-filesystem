@@ -4,11 +4,10 @@ namespace Josbeir\Filesystem;
 use ArrayIterator;
 use Cake\Collection\CollectionInterface;
 use Cake\Collection\CollectionTrait;
-use Cake\Core\InstanceConfigTrait;
+use InvalidArgumentException;
 use IteratorIterator;
 use Josbeir\Filesystem\FileEntityInterface;
 use Josbeir\Filesystem\FilesystemRegistry;
-use Josbier\Filesystem\Filesystem;
 use Traversable;
 
 /**
@@ -17,33 +16,15 @@ use Traversable;
 class FileEntityCollection extends IteratorIterator implements CollectionInterface
 {
     use CollectionTrait;
-    use InstanceConfigTrait;
-
-    /**
-     * Default configuration
-     *
-     * Options
-     * -------
-     * `filesystem` Key of the filesystem to use to initiate entity classes
-     *
-     * @var array
-     */
-    protected $_defaultConfig = [
-        'filesystem' => FilesystemRegistry::CONFIG_DEFAULT
-    ];
 
     /**
      * Constructor
      *
      * @param array $entities Entities
-     * @param array $config Config
      */
-    public function __construct(array $entities, array $config = [])
+    public function __construct(array $entities)
     {
-        $this->setConfig($config);
-
         if (is_array($entities)) {
-            $entities = $this->prepareEntities($entities);
             $entities = new ArrayIterator($entities);
         }
 
@@ -56,36 +37,22 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     }
 
     /**
-     * Prepare entity data
+     * Create a collection instance from a mixed data array
+     * Array can contain Entity array data to the entity itself
      *
-     * @param array $entities Array with entities
-     * @return void
+     * @param array $entities Array with entity data or entities
+     * @param string $filesystem Filesystem name, used to generate the correct entity
+     * @return self
      */
-    public function prepareEntities($entities)
+    public static function createFromArray(array $entities, string $filesystem = null) : self
     {
         foreach ($entities as &$entity) {
             if (!$entity instanceof FileEntityInterface) {
-                $entities = $this->getFilesystem()->newEntity($entity);
+                $entity = FilesystemRegistry::get($filesystem)->newEntity($entity);
             }
         }
 
-        return $entities;
-    }
-
-    /**
-     * Return filesystem class
-     *
-     * @return \Josbier\Filesystem\Filesystem
-     */
-    public function getFilesystem() : Filesystem
-    {
-        $filesystem = $this->getConfig('filesystem');
-
-        if ($filesystem instanceof Filesystem) {
-            return $this->getConfig('filesystem');
-        }
-
-        return FilesystemRegistry::get($filesystem);
+        return new static($entities);
     }
 
     /**
@@ -97,8 +64,7 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     public function __debugInfo()
     {
         return [
-            'count' => $this->count(),
-            'data' => $this->getArrayCopy()
+            'count' => $this->count()
         ];
     }
 }
