@@ -1,5 +1,6 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
 [![Build Status](https://travis-ci.org/josbeir/cakephp-filesystem.svg?branch=master)](https://travis-ci.org/josbeir/cakephp-filesystem)
+[![codecov](https://codecov.io/gh/josbeir/cakephp-filesystem/branch/master/graph/badge.svg)](https://codecov.io/gh/josbeir/cakephp-filesystem)
 
 # Filesystem plugin for CakePHP
 
