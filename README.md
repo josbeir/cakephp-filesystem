@@ -41,12 +41,13 @@ return [
     'Filesystem' => [
         'default' => [
             'adapter' => 'Local', // default
-            'adapterArguments' => [ WWW_ROOT . 'files' ],
+            'adapterArguments' => [ WWW_ROOT . 'files' ]
         ],
         'other' => [
             'adapter' => 'Local',
             'adapterArguments' => [ WWW_ROOT . 'cache' ],
-            'entityClass' => '\My\Cool\EntityClass
+            'entityClass' => '\My\Cool\EntityClass',
+            'formatter' => '\My\Cool\Formatter'
         ]
     ]
 ];
@@ -56,8 +57,9 @@ return [
 
 Filesystem instances can be accessed from everywhere where you either use the **FilesystemAwareTrait** and calling ```MyClass::getFilesystem($configKey)``` or the ```FilesystemRegistry::get()```
 
-## Upload data
+In this example we are using a fictive 'myfs' filesystem definition, if you leave that empty the default FS will be used when calling ``getFilesystem()``.
 
+Upload data submitted in POST:
 ```php
  [
     'tmp_name' => '/tmp/blabla',
@@ -68,10 +70,7 @@ Filesystem instances can be accessed from everywhere where you either use the **
 ]
 ```
 
-### Upload magic
-
-In this example we are using a fictive 'myfs' filesystem definition, if you leave that empty the default FS will be returned.
-
+Example controller:
 ```php
 <?php
 namespace App\Controller;
@@ -95,7 +94,7 @@ class MyController extends AppController {
 
 The result from the above example will output a file entity class
 
-```yaml
+```php
 object(Josbeir\Filesystem\FileEntity) {
 
     'path' => 'articles/now_im_called_bar.png',
@@ -143,14 +142,12 @@ $fileEntity = $this->getFilesystem()->upload(TMP . 'myfile.png', [
     'formatter' => 'Entity', // formatter to use
     'data' => $entity // data to pass to the formatter
 ]);
-
-// The default EntityFormatter pattern is {entity-source}/{file-name}.{file-ext}
-// Should result in something posts/myfile.png
 ```
+The default EntityFormatter pattern is ``{entity-source}/{file-name}.{file-ext}`` which results in ``posts/myfile.png``
 
 ### Setting up formatters
 
-Formatters are simple? classes used to name the files during upload, this plugins currently comes with two formatters.
+Formatters are simple classes used to name and clean file paths during upload, this plugins currently comes with two formatters.
 
 * **DefaultFormatter**, this just returns the 'cleaned' filename
 * **EntityFormatter**, extends the default formatter, expects an EntityInterface as data and used to format filenames based on data from an entity.
@@ -162,23 +159,54 @@ $this->getFilesystem()
     ->upload(TMP . 'myfile.png', [
         'formatter' => 'Entity',
         'data' => $entity,
-        'pattern' => '{entity-source}/{date-y}-{date-m}-{date-d}-{file-name}-{custom}.{file-ext}',        
+        'pattern' => '{entity-source}/{date-y}-{date-m}-{date-d}-{file-name}-{custom}.{file-ext}',
         'replacements' => [ 'custom' => 'key' ] // extra replacement patterns
     ]);
-
-    // Should result in something posts/2018-05-26-myfile-key.png
 ```
 
-Creating your own formatter class is pretty straightforward. The class should implement ``FormatterInterface`` and consists of two methods, getPath and setInfo. Check Default or EntityFormatter for more information.
+Should result in something like ``posts/2018-05-26-myfile-key.png`` .
+
+### Creating a custom formatter class
+
+Creating your own formatter class is pretty straightforward. The class should implement ``FormatterInterface`` Check the ``DefaultFormatter`` or ``EntityFormatter``classes for more information.
+
+#### Example custom formatter
+```php
+<?php
+namespace \Path\To\Formatters
+
+use Josbeir\Filesystem\DefaultFormatter;
+
+class MyFormatter extends DefaultFormatter
+{
+    // Extra settings?
+    $_defaultConfig = [
+        'mysetting1' => 'hello'
+        'mysetting2' => 'world'
+    ];
+
+    public function getPath() : string
+    {
+        $setting = $this->getConfig('mysetting1');
+        $setting2 = $this->getConfig('mysetting2');
+
+        return $setting . DS . $setting2 . DS . $this->getBaseName();
+    }
+}
+```
+
+#### Using the custom formatter class in your application
+
+The formatter FQCN can be set in the filesystem config or whenever you call setFormatter.
 
 ```php
-$this->getFilesystem()
-    ->setFormatter('\My\Cool\Formatter')
-    ->upload(TMP . 'myfile.png', [
-        'data' => $entity,
-        '..' => 'other config arguments',
-        '..' => 'other config arguments',        
+$file = $this->getFilesystem()
+    ->setFormatter('\Path\To\Formatters\MyFormatter')
+    ->upload($file, [
+        'mysetting2' => 'cool',
     ]);
+
+debug($file->getPath()) // hello/cool/myfile.png
 ```
 
 ## Methods
@@ -212,6 +240,15 @@ $this->getFilesystem()->getDisk();
 
 // Get Flysystem adatapter
 $this->getFilesystem()->getAdapter();
+
+// Set the formatter class name to be used
+$this->getFilesystem()->setFormatter($name);
+
+// Return a new formatter instance
+$this->getFilesystem()->newFormatter($filename, $data, $config);
+
+// Reset formatter and adapter to default configuration
+$this->getFilesystem()->reset();
 ```
 
 ## Recreating entities
@@ -229,7 +266,7 @@ $entity = $this->getFilesystem()->newEntity([
 ]);
 ```
 
-Recreating a collection of entities
+Recreating a collection of entities, will return a custom [Collection](https://book.cakephp.org/3.0/en/core-libraries/collections.html) instance.
 
 ```php
 $entities = FileEntityCollection::createFromArray($entities [, string $filesystem]);
