@@ -38,7 +38,7 @@ class FilesystemTest extends TestCase
 
         $this->assertInstanceOf('League\Flysystem\Filesystem', $manager->getDisk());
         $this->assertInstanceOf('League\Flysystem\Adapter\Local', $manager->getAdapter());
-        $this->assertInstanceOf('\Josbeir\Filesystem\Formatter\DefaultFormatter', $manager->getFormatter());
+        $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $manager->getFormatterClass());
     }
 
     public function testGetAdapter()
@@ -83,6 +83,13 @@ class FilesystemTest extends TestCase
         $this->assertEventFiredWith('Filesystem.afterUpload', 'entity', $entity, $this->manager->getEventManager());
     }
 
+    public function testInvalidUpload()
+    {
+        $this->expectException('\Josbeir\Filesystem\Exception\FilesystemException');
+
+        $entity = $this->manager->upload('invalidfile');
+    }
+
     public function testUploadEntityFormatter()
     {
         $entity = $this->manager->upload($this->testFile, [
@@ -117,12 +124,32 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $file);
     }
 
+    public function testuploadMany()
+    {
+        $uploadsArray = [];
+        for ($x = 0; $x <= 1; $x++) {
+            $uploadArray[] = [
+                'name' => 'dummy.png',
+                'tmp_name' => $this->testFile,
+                'error' => UPLOAD_ERR_OK,
+                'size' => 1337,
+                'type' => 'image/png'
+            ];
+        }
+
+        $collection = $this->manager->uploadMany($uploadArray);
+
+        $this->assertEquals((int)2, $collection->count());
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityCollection', $collection);
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->first());
+    }
+
     public function testUploadedFileUpload()
     {
         $data = new UploadedFile(tmpfile(), 1337, UPLOAD_ERR_OK, 'dummy_test.png', 'image/png');
         $entity = $this->manager->upload($data);
 
-        $this->assertSame('dummy_test.png', $this->manager->getFormatter()->getPath());
+        $this->assertSame('dummy_test.png', $entity->getPath());
         $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
 
         $this->assertFileExists($dest);
@@ -139,26 +166,23 @@ class FilesystemTest extends TestCase
             'name' => 'myimage'
         ], [ 'source' => 'articles' ]);
 
-        $path = $this->manager
+        $formatter = $this->manager
             ->setFormatter('Entity')
-            ->getFormatter()
-            ->setInfo('test.png', $entity)
-            ->getPath();
+            ->newFormatter('test.png', $entity);
 
-        $this->assertInstanceOf('\Josbeir\Filesystem\Formatter\EntityFormatter', $this->manager->getFormatter());
-        $this->assertSame('articles/test.png', $path);
+        $this->assertInstanceOf('\Josbeir\Filesystem\Formatter\EntityFormatter', $formatter);
+        $this->assertSame('articles/test.png', $formatter->getPath());
 
         $path = $this->manager
             ->setFormatter('Default')
-            ->getFormatter()
-            ->setInfo('test.png')
+            ->newFormatter('test.png')
             ->getPath();
 
         $this->assertSame('test.png', $path);
 
         // test invalid data passed
         $this->expectException('\InvalidArgumentException');
-        $this->manager->setFormatter('Entity')->getFormatter()->getPath();
+        $this->manager->setFormatter('Entity')->newFormatter('filename', 'imnotvalid')->getPath();
     }
 
     public function testEntityFormatterCustomPattern()
@@ -169,14 +193,19 @@ class FilesystemTest extends TestCase
         ], [ 'source' => 'articles' ]);
 
         $path = $this->manager
-            ->setFormatter('Entity', [
+            ->setFormatter('Entity')
+            ->newFormatter('cool-image.png', $entity, [
                 'pattern' => '{entity-source}/{id}-{name}.{file-ext}',
             ])
-            ->getFormatter()
-            ->setInfo('cool-image.png', $entity)
             ->getPath();
 
         $this->assertSame('articles/cool-id-hello_world_this_is_cool.png', $path);
+    }
+
+    public function testInvalidFormatterClass()
+    {
+        $this->expectException('\InvalidArgumentException');
+        $this->manager->setFormatter('unknown');
     }
 
     public function testRename()
@@ -208,5 +237,15 @@ class FilesystemTest extends TestCase
 
         $this->assertEventFiredWith('Filesystem.beforeDelete', 'entity', $entity, $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterDelete', 'entity', $entity, $this->manager->getEventManager());
+    }
+
+    public function testReset()
+    {
+        $this->manager->setFormatter('Entity');
+        $this->assertEquals('\Josbeir\Filesystem\Formatter\EntityFormatter', $this->manager->getFormatterClass());
+
+        $this->manager->reset();
+
+        $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $this->manager->getFormatterClass());
     }
 }

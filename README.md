@@ -148,25 +148,22 @@ $fileEntity = $this->getFilesystem()->upload(TMP . 'myfile.png', [
 // Should result in something posts/myfile.png
 ```
 
-### Setting formatter patterns and extra key value data
+### Setting up formatters
 
-Formatters are classes used to name the files during upload, this plugins comes with two formatters.
+Formatters are simple? classes used to name the files during upload, this plugins currently comes with two formatters.
 
 * **DefaultFormatter**, this just returns the 'cleaned' filename
-* **EntityFormatter**, extends the default formatter, expect an EntityInterface as argument, used to format filenames based on data from an entity
-
-Formatter patterns can be set be either creating your own formatter class or setting the pattern before calling the upload method
+* **EntityFormatter**, extends the default formatter, expects an EntityInterface as data and used to format filenames based on data from an entity.
 
 ```php
 $entity = $this->Posts->get(1);
 
 $this->getFilesystem()
-    ->setFormatter('Entity', [
-        'pattern' => '{entity-source}/{date-y}-{date-m}-{date-d}-{file-name}-{custom}.{file-ext}',
-        'replacements' => [ 'custom' => 'key' ] // extra replacement key/values that can be used
-    ])
     ->upload(TMP . 'myfile.png', [
-        'data' => $entity
+        'formatter' => 'Entity',
+        'data' => $entity,
+        'pattern' => '{entity-source}/{date-y}-{date-m}-{date-d}-{file-name}-{custom}.{file-ext}',        
+        'replacements' => [ 'custom' => 'key' ] // extra replacement patterns
     ]);
 
     // Should result in something posts/2018-05-26-myfile-key.png
@@ -178,7 +175,9 @@ Creating your own formatter class is pretty straightforward. The class should im
 $this->getFilesystem()
     ->setFormatter('\My\Cool\Formatter')
     ->upload(TMP . 'myfile.png', [
-        'data' => $entity
+        'data' => $entity,
+        '..' => 'other config arguments',
+        '..' => 'other config arguments',        
     ]);
 ```
 
@@ -193,13 +192,9 @@ Other methods are proxied to the Flysystem filesystem. If you wish to use th Fly
 // Will fire Filesystem.beforeUpload and Filesystem.afterUpload
 $this->getFilesystem()->upload($data, $config);
 
-// Upload multiple files
+// Upload multiple files and returns a FileEntityCollection
 // Will fire Filesystem.beforeUpload and Filesystem.afterUpload (after each file upload)
 $this->getFilesystem()->uploadMany($files, $config);
-
-// Merge existing uploaded entities with newly uploaded entities/files
-// Can optionally remove items from the resultset based on an array of filehash keys
-$this->getFilesystem()->mergeEntities($entities, $data, $config);
 
 // Rename an entity
 // Will fire Filesystem.beforeRename and Filesystem.afterRename
@@ -233,3 +228,17 @@ $entity = $this->getFilesystem()->newEntity([
     'created' => '2018-05-27T15:31:54+00:00'
 ]);
 ```
+
+Recreating a collection of entities
+
+```php
+$entities = FileEntityCollection::createFromArray($entities [, string $filesystem]);
+```
+
+## Contribute
+
+Before submitting a PR make sure:
+
+- [PHPUnit](http://book.cakephp.org/3.0/en/development/testing.html#running-tests)
+and [CakePHP Code Sniffer](https://github.com/cakephp/cakephp-codesniffer) tests pass
+- [Codecov Code Coverage ](https://codecov.io/gh/josbeir/cakephp-filesystem) does not drop

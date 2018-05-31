@@ -1,6 +1,7 @@
 <?php
 namespace Josbeir\Filesystem\Formatter;
 
+use Cake\Core\InstanceConfigTrait;
 use Cake\Filesystem\File;
 use Josbeir\Filesystem\FormatterInterface;
 use SplFileInfo;
@@ -10,6 +11,15 @@ use SplFileInfo;
  */
 class DefaultFormatter implements FormatterInterface
 {
+    use InstanceConfigTrait;
+
+    /**
+     * Default configuration
+     *
+     * @var array
+     */
+    protected $_defaultConfig = [];
+
     /**
      * Data to be used for formatting
      *
@@ -27,12 +37,12 @@ class DefaultFormatter implements FormatterInterface
     /**
      * {@inheritDoc}
      */
-    public function setInfo(string $filename, $data = null) : FormatterInterface
+    public function __construct(string $filename, $data = null, array $config = [])
     {
+        $this->setConfig($config);
+
         $this->_data = $data;
         $this->_info = pathinfo($filename);
-
-        return $this;
     }
 
     /**

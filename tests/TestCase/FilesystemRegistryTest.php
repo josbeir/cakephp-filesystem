@@ -61,7 +61,7 @@ class FilesystemRegistryTest extends TestCase
 
         $fs = FilesystemRegistry::get('myfs');
 
-        $this->assertInstanceOf('\Josbeir\Filesystem\Formatter\EntityFormatter', $fs->getFormatter());
+        $this->assertSame('\Josbeir\Filesystem\Formatter\EntityFormatter', $fs->getFormatterClass());
     }
 
     /**

@@ -59,7 +59,7 @@ class FileSourceNormalizer
      * @param string|array|\Zend\Diactoros\UploadedFile $uploadData Mixed upload data
      * @param string $config Config options
      *
-     * @throws Josbeir\Filesystem\Exception\FilesystemException When after parsing no valid file resource could be detected
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException When after parsing no valid file resource could be detected
      */
     public function __construct($uploadData, array $config = [])
     {
@@ -147,6 +147,8 @@ class FileSourceNormalizer
 
     /**
      * Return string representation
+     *
+     * @codeCoverageIgnore
      *
      * @return string
      */

@@ -69,19 +69,9 @@ class Filesystem implements EventDispatcherInterface
     protected $_disk;
 
     /**
-     * List of built in formatters
+     * Current formatter classname
      *
-     * @var array
-     */
-    protected $_formatters = [
-        'Default' => 'Josbeir\Filesystem\Formatter\DefaultFormatter',
-        'Entity' => 'Josbeir\Filesystem\Formatter\EntityFormatter'
-    ];
-
-    /**
-     * Instance of current formatter
-     *
-     * @var \Josbeir\Filesystem\FormatterInterface
+     * @var string
      */
     protected $_formatter;
 
@@ -155,51 +145,77 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Set the current file formatter
+     * Set the current formatter classname
      *
-     * @param string|\Josbeir\Filesystem\FormatterInterface $name Name or formatter class
-     * @param array $options Options to pass to the formatter (if available)
-     *
-     * @throws \InvalidArgumentException When formatter could not be loaded
+     * @param string $formatter Name or formatter class
+     * @param array $config Config parameters passed to the formatter on creation
      *
      * @return $this
      */
-    public function setFormatter($name, array $options = []) : self
+    public function setFormatter($formatter, array $config = []) : self
     {
-        if (is_string($name) && isset($this->_formatters[$name])) {
-            $this->_formatter = new $this->_formatters[$name]($options);
-        }
-
-        if ($name instanceof FormatterInterface) {
-            $this->_formatter = new $name($options);
-        }
-
-        if (!$this->_formatter) {
-            throw new InvalidArgumentException(sprintf('Formatter "%s" could not be loaded', $name));
-        }
+        $this->_formatter = $this->getFormatterClass($formatter);
 
         return $this;
     }
 
     /**
-     * Return the current formatter instance
+     * Returns a newly configured formatter instance
+     * @see \Josbeir\Filesystem\FormatterInterface::__construct
+     *
+     * @param string $filename Original filename
+     * @param mixed $data Original Data used to format path
+     * @param array $config Configuration settings passed to formatter
      *
      * @return \Josbeir\Filesystem\FormatterInterface
      */
-    public function getFormatter() : FormatterInterface
+    public function newFormatter($filename, $data = null, array $config = []) : FormatterInterface
     {
         if ($this->_formatter === null) {
-            $this->setFormatter($this->getConfig('formatter'));
+            $this->setFormatter($this->getFormatterClass());
         }
 
-        return $this->_formatter;
+        return new $this->_formatter($filename, $data, $config);
+    }
+
+    /**
+     * Return formatter className
+     *
+     * @param string $name Name of formatter, can be a shortname or FQCN
+     *
+     * @throws \InvalidArgumentException When formatter could not be found
+     *
+     * @return string
+     */
+    public function getFormatterClass($name = null) : string
+    {
+        $formatter = $name;
+        if ($formatter === null) {
+            $formatter = $this->_formatter ?: $this->getConfig('formatter');
+        }
+
+        if (!class_exists($formatter)) {
+            $formatter = '\\Josbeir\\Filesystem\\Formatter\\' . $formatter . 'Formatter';
+        }
+
+        if (!class_exists($formatter)) {
+            throw new InvalidArgumentException(sprintf('Formatter class "%s" could not be found', $formatter));
+        }
+
+        return $formatter;
     }
 
     /**
      * Upload a file
      *
      * @param string|array|\Zend\Diactoros\UploadedFile $file Uploaded file
-     * @param array $config Formatter Arguments
+     * @param array $config Configuration
+     *
+     * Configuration options
+     * -------
+     * `formatter` name/classname of the formatter to use
+     * `data` data to be passed to the formatter
+     * *All other options are passed to the formatter configuration instance*
      *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException When uploading failed somehow
      *
@@ -207,10 +223,6 @@ class Filesystem implements EventDispatcherInterface
      */
     public function upload($file, array $config = []) : FileEntity
     {
-        if ($file instanceof FileEntity) {
-            return $file;
-        }
-
         $config = $config + [
             'formatter' => null,
             'data' => null
@@ -220,11 +232,18 @@ class Filesystem implements EventDispatcherInterface
             $this->setFormatter($config['formatter']);
         }
 
-        $filedata = new FileSourceNormalizer($file);
-        $formatter = $this->getFormatter()->setInfo($filedata->filename, $config['data']);
-        $destPath = $formatter->getPath();
+        $data = null;
+        if (isset($config['data'])) {
+            $data = $config['data'];
+        }
 
-        $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'formatter'));
+        unset($config['data']);
+        unset($config['formatter']);
+
+        $filedata = new FileSourceNormalizer($file);
+        $destPath = $this->newFormatter($filedata->filename, $data, $config)->getPath();
+
+        $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'destPath'));
 
         if ($this->getDisk()->putStream($destPath, $filedata->resource)) {
             $entity = $this->newEntity([
@@ -291,6 +310,7 @@ class Filesystem implements EventDispatcherInterface
      * @param array $config Formatter Arguments
      *
      * @return FileEntityInterface[]
+     * @codeCoverageIgnore !! This does not belong here and should be implemented in an app specific way or maybe an extra utlities class
      */
     public function mergeEntities($entities, $data, array $config = []) : array
     {
@@ -415,6 +435,7 @@ class Filesystem implements EventDispatcherInterface
     public function reset() : self
     {
         $this->_formatter = null;
+        $this->_adapter = null;
 
         return $this;
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Josbeir\Filesystem\Formatter;
 
-use Cake\Core\InstanceConfigTrait;
 use Cake\Datasource\EntityInterface;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
@@ -14,8 +13,6 @@ use Josbeir\Filesystem\Formatter\DefaultFormatter;
  */
 class EntityFormatter extends DefaultFormatter
 {
-    use InstanceConfigTrait;
-
     /**
      * Configuration options
      *
@@ -27,19 +24,9 @@ class EntityFormatter extends DefaultFormatter
     ];
 
     /**
-     * Constructor
-     *
-     * @param array $options configuration options
-     */
-    public function __construct($options)
-    {
-        $this->setConfig($options);
-    }
-
-    /**
      * (@inheritDoc)
      *
-     * @throws \Exception
+     * @throws \InvalidArgumentException
      *
      * @return string
      */

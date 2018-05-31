@@ -4,13 +4,15 @@ namespace Josbeir\Filesystem;
 interface FormatterInterface
 {
     /**
-     * Set data to be used in the formatter
+     * Formatter constructor
      *
-     * @param string $filename Filename used during upload
-     * @param mixed $data Data to be used in the class
-     * @return $this
+     * @param string $filename Original filename
+     * @param mixed $data Data passed
+     * @param array $config Configuration options
+     *
+     * @return void
      */
-    public function setInfo(string $filename, $data = null) : self;
+    public function __construct(string $filename, $data = null, array $config = []);
 
     /**
      * Return the formatted path
