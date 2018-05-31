@@ -272,6 +272,20 @@ Recreating a collection of entities, will return a custom [Collection](https://b
 $entities = FileEntityCollection::createFromArray($entities [, string $filesystem]);
 ```
 
+## Event dispatching
+
+Events are dispatched when performing an operation on a file entity.
+Currently the following events are implemented:
+
+| Name | Passed params | Stoppable?  |
+|------| ---------- | ----------- |
+| Filesystem.beforeUpload | FileSource, destinationPath | No
+| Filesystem.afterUpload | FileEntity, FileSource | No
+| Filesystem.beforeDelete | FileEntity | Yes
+| Filesystem.afterDelete | FileEntity | No
+| Filesystem.beforeRename | FileEntity, new path | Yes
+| Filesystem.afterRename | FileEntity | No
+
 ## Contribute
 
 Before submitting a PR make sure:
