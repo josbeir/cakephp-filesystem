@@ -15,6 +15,7 @@
         "issues":"https://github.com/josbeir/cakephp-filesystem/issues"
     },
     "require": {
+        "php": ">=7.1",
         "cakephp/cakephp": "^3.6",
         "league/flysystem": "^1.0"
     },

@@ -240,15 +240,15 @@ class Filesystem implements EventDispatcherInterface
     public function upload($file, array $config = []) : FileEntity
     {
         $filedata = new FileSourceNormalizer($file);
-        $destPath = $this->newFormatter($filedata->filename, $config)->getPath();
+        $formatted = $this->newFormatter($filedata->filename, $config);
 
         $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'destPath'));
 
-        if ($this->getDisk()->putStream($destPath, $filedata->resource)) {
+        if ($this->getDisk()->putStream($formatted->getPath(), $filedata->resource)) {
             $entity = $this->newEntity([
-                'path' => $destPath,
-                'originalFilename' => $filedata->filename,
-                'filesize' => $filedata->size,
+                'path' => $formatted->getPath(),
+                'filename' => $formatted->getBaseName(),
+                'size' => $filedata->size,
                 'mime' => $filedata->mime,
                 'hash' => $filedata->hash
             ]);
@@ -294,73 +294,6 @@ class Filesystem implements EventDispatcherInterface
         $entity = new $entityClass($data);
 
         return $entity;
-    }
-
-    /**
-     * Returns a new array of entities cross matched by hash
-     * When $data is not an instance of FileEntityInterface the upload method will be called first.
-     *
-     * # configuration options
-     * `removeHashes` An array of hashes matching entities to be removed after the merge has been done
-     * `removeFile` When removeFile is true the physical file will be removed when a match of removeHashes is found
-     *
-     * @param array|null $entities Original entities, can be empty
-     * @param array|null $data Array containing new or to be uploaded entities, can be empty
-     * @param array $config Formatter Arguments
-     *
-     * @return FileEntityInterface[]
-     * @codeCoverageIgnore !! This does not belong here and should be implemented in an app specific way or maybe an extra utlities class
-     */
-    public function mergeEntities($entities, $data, array $config = []) : array
-    {
-        $config = $config + [
-            'removeHashes' => [],
-            'removeFile' => false
-        ];
-
-        if (!$entities) {
-            $entities = [];
-        }
-
-        if (!$data) {
-            $data = [];
-        }
-
-        $removeFile = $config['removeFile'];
-        $hashesToRemove = $merged = [];
-
-        if (!empty($config['removeHashes']) && is_array($config['removeHashes'])) {
-            $hashesToRemove = array_combine($config['removeHashes'], $config['removeHashes']);
-        }
-
-        unset($config['removeFile']);
-        unset($config['removeHashes']);
-
-        foreach ($entities as $entity) {
-            $merged[$entity->getHash()] = $entity;
-        }
-
-        foreach ($data as $entity) {
-            if (!$entity instanceof FileEntityInterface) {
-                $entity = $this->upload($entity, $config);
-            }
-
-            $merged[$entity->getHash()] = $entity;
-        }
-
-        if ($hashesToRemove) {
-            foreach ($merged as $hash => $entity) {
-                if (array_key_exists($hash, $hashesToRemove)) {
-                    if ($removeFile) {
-                        $this->delete($entity);
-                    }
-
-                    unset($merged[$hash]);
-                }
-            }
-        }
-
-        return array_values($merged);
     }
 
     /**

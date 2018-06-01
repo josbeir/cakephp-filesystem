@@ -13,6 +13,13 @@ interface FileEntityInterface extends JsonSerializable
     public function getPath() : string;
 
     /**
+     * Return the files unique uuid
+     *
+     * @return string
+     */
+    public function getUuid() : string;
+
+    /**
      * Set the entity path
      *
      * @param string $path Entity path

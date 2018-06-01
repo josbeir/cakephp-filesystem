@@ -3,6 +3,7 @@ namespace Josbeir\Filesystem;
 
 use ArrayObject;
 use Cake\I18n\Time;
+use Cake\Utility\Text;
 use Josbeir\Filesystem\Exception\FileEntityException;
 use Josbeir\Filesystem\FileEntityInterface;
 
@@ -16,13 +17,14 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @var array
      */
-    protected $_data = [
-        'path' => null,
-        'originalFilename' => null,
-        'mime' => null,
-        'hash' => null,
-        'filesize' => 0,
-        'created' => null
+    protected $_allowed = [
+        'uuid',
+        'path',
+        'filename',
+        'mime',
+        'hash',
+        'size',
+        'created'
     ];
 
     /**
@@ -36,90 +38,27 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      */
     public function __construct(array $data)
     {
-        $this->setData($data);
+        $defaults = array_fill_keys($this->_allowed, null);
+        $data = $data + $defaults;
 
-        parent::__construct($this->_data);
-    }
-
-    /**
-     * Populate the entity
-
-     * @param array $data file data
-     *
-     * @throws \Josbeir\Filesystem\Exception\FileEntityException When data contains keys that are not allowed
-
-     * @return self
-     */
-    public function setData($data)
-    {
-        $diff = array_diff_key($data, $this->_data);
-
+        $diff = array_diff_key($data, $defaults);
         if (!empty($diff)) {
             throw new FileEntityException(sprintf('FileEntity constructor data contains keys that are not allowed (%s)', implode(',', array_keys($diff))));
         }
 
-        $this->_data = $data + $this->_data;
-
-        if (is_string($this->created)) {
-            $this->created = new Time($this->created);
+        if (!$data['uuid']) {
+            $data['uuid'] = Text::uuid();
         }
 
-        if (!$this->created) {
-            $this->created = Time::now();
+        if (!$data['created']) {
+            $data['created'] = Time::now();
         }
 
-        return $this;
-    }
-
-    /**
-     * Magic getter, return field from data
-     *
-     * @param string $field Fieldname to return
-     *
-     * @throws Josbeir\Filesystem\Exception\FileEntityException When passed field is not defined in $_data
-     *
-     * @return mixed
-     */
-    public function __get($field)
-    {
-        if (array_key_exists($field, $this->_data)) {
-            return $this->_data[$field];
+        if (is_string($data['created'])) {
+            $data['created'] = new Time($data['created']);
         }
 
-        throw new FileEntityException(sprintf('Field %s not available', $field));
-    }
-
-    /**
-     * Magic setter, set data
-     *
-     * @param string $field name of the field to set
-     * @param string $value value to set
-     *
-     * @return void
-     */
-    public function __set($field, $value)
-    {
-        if (array_key_exists($field, $this->_data)) {
-            $this->_data[$field] = $value;
-        }
-    }
-
-    /**
-     * Return a human readable filesize
-     *
-     * @param int $precision Precision to return
-     *
-     * @deprecated Dont use, this is going to be removed soon!
-     * @codeCoverageIgnore
-     *
-     * @return string
-     */
-    public function humanFilesize($precision = 2)
-    {
-        $base = log($this->filesize, 1024);
-        $suffixes = [ '', 'KB', 'MB', 'GB', 'TB' ];
-
-        return round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
+        parent::__construct($data, ArrayObject::ARRAY_AS_PROPS);
     }
 
     /**
@@ -159,9 +98,17 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
+    public function getUuid() : string
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function toArray() : array
     {
-        return $this->_data;
+        return $this->getArrayCopy();
     }
 
     /**

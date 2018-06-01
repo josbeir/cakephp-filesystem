@@ -58,6 +58,16 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     }
 
     /**
+     * Return a string representation of the collection
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return json_encode($this);
+    }
+
+    /**
      * Returns an array that can be used to describe the internal state of this
      * object.
      *

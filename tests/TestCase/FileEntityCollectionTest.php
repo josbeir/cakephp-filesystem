@@ -37,6 +37,18 @@ class FileEntityCollectionTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->last());
     }
 
+    public function testToString()
+    {
+        $entities = [];
+        for ($x = 1; $x <= 2; $x++) {
+            $entities[] = new FileEntity($this->_dummyEntityData());
+        }
+
+        $collection = (string)new FileEntityCollection($entities);
+
+        $this->assertJson($collection);
+    }
+
     public function testInvalidData()
     {
         $this->expectException('\InvalidArgumentException');
@@ -50,7 +62,7 @@ class FileEntityCollectionTest extends TestCase
             'path' => uniqid() . '.ext',
             'hash' => uniqid(),
             'mime' => 'file/type',
-            'filesize' => 1337
+            'size' => 1337
         ];
     }
 }

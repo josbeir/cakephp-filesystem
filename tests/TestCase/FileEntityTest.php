@@ -29,6 +29,7 @@ class FileEntityTest extends TestCase
     public function testConstructor()
     {
         $arrayData = $this->file->toArray();
+
         $entity = new FileEntity($arrayData);
 
         $this->assertInstanceOf('Cake\i18n\Time', $entity->created);
@@ -56,31 +57,20 @@ class FileEntityTest extends TestCase
         $this->assertEquals($expected, (string)$entity->created);
     }
 
-    public function testUnavailableAttributes()
-    {
-        $this->expectException('\Josbeir\Filesystem\Exception\FileEntityException');
-
-        $this->file->helloworld;
-    }
-
     public function testAttributes()
     {
         $this->assertEquals($this->file->getPath(), 'dummy.png');
-        $this->assertEquals($this->file->originalFilename, 'dummy.png');
-        $this->assertEquals($this->file->filesize, 59992);
+        $this->assertEquals($this->file->filename, 'dummy.png');
+        $this->assertEquals($this->file->size, 59992);
         $this->assertEquals($this->file->mime, 'image/png');
-        $this->assertEquals($this->file->hash, '3ba92ed92481b4fc68842a2b3dcee525');
+        $this->assertEquals($this->file->getHash(), '3ba92ed92481b4fc68842a2b3dcee525');
+        $this->assertTrue($this->file->hasHash('3ba92ed92481b4fc68842a2b3dcee525'));
 
         $this->assertInstanceOf('Cake\i18n\Time', $this->file->created);
 
-        $this->assertInternalType('int', $this->file->filesize);
+        $this->assertInternalType('string', $this->file->getUuid(), 'UUID not a string');
+        $this->assertInternalType('int', $this->file->size, 'Size not an integer');
         $this->assertInternalType('array', $this->file->toArray());
-    }
-
-    public function testGetHasHash()
-    {
-        $this->assertEquals('3ba92ed92481b4fc68842a2b3dcee525', $this->file->getHash());
-        $this->assertTrue($this->file->hasHash('3ba92ed92481b4fc68842a2b3dcee525'));
     }
 
     public function testMagic()
