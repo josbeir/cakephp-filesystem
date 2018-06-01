@@ -211,9 +211,9 @@ debug($file->getPath()) // hello/cool/myfile.png
 
 ## Methods
 
-The Filesystem class itself implements a few convenience methods around the Flysystem Fs.
+The Filesystem class itself implements a few convenience methods around the Flysystem filesystem class.
 
-Other methods are proxied to the Flysystem filesystem. If you wish to use th Flysystem FS directly then please use getDisk() wich returns the Filesystm instance.
+Other methods are proxied over. If you wish to use the Flysystem instance directly then please use getDisk().
 
 ```php
 // Upload a file
@@ -245,7 +245,7 @@ $this->getFilesystem()->getAdapter();
 $this->getFilesystem()->setFormatter($name);
 
 // Return a new formatter instance
-$this->getFilesystem()->newFormatter($filename, $data, $config);
+$this->getFilesystem()->newFormatter($filename, $config);
 
 // Reset formatter and adapter to default configuration
 $this->getFilesystem()->reset();
