@@ -226,7 +226,7 @@ $this->getFilesystem()->uploadMany($files, $config);
 
 // Rename an entity
 // Will fire Filesystem.beforeRename and Filesystem.afterRename
-$this->getFilesystem()->rename($entity, $newPath);
+$this->getFilesystem()->rename($entity, $options);
 
 // Delete an entity from the FS
 // Will fire Filesystem.beforeDelete and Filesystem.afterDelete

@@ -168,7 +168,7 @@ class FilesystemTest extends TestCase
 
         $formatter = $this->manager
             ->setFormatter('Entity')
-            ->newFormatter('test.png', $entity);
+            ->newFormatter('test.png', [ 'data' => $entity ]);
 
         $this->assertInstanceOf('\Josbeir\Filesystem\Formatter\EntityFormatter', $formatter);
         $this->assertSame('articles/test.png', $formatter->getPath());
@@ -182,7 +182,7 @@ class FilesystemTest extends TestCase
 
         // test invalid data passed
         $this->expectException('\InvalidArgumentException');
-        $this->manager->setFormatter('Entity')->newFormatter('filename', 'imnotvalid')->getPath();
+        $this->manager->setFormatter('Entity')->newFormatter('filename', [ 'data' => 'imnotvalid' ])->getPath();
     }
 
     public function testEntityFormatterCustomPattern()
@@ -194,7 +194,8 @@ class FilesystemTest extends TestCase
 
         $path = $this->manager
             ->setFormatter('Entity')
-            ->newFormatter('cool-image.png', $entity, [
+            ->newFormatter('cool-image.png', [
+                'data' => $entity,
                 'pattern' => '{entity-source}/{id}-{name}.{file-ext}',
             ])
             ->getPath();
@@ -225,6 +226,23 @@ class FilesystemTest extends TestCase
 
         // now rename once again
         $this->manager->rename($entity, 'dummy.png');
+    }
+
+    public function testRenameWithFormatter()
+    {
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->assertEquals('dummy.png', $entity->getPath());
+
+        $this->manager->rename($entity, [
+            'formatter' => 'Entity',
+            'data' => new Entity([
+                'id' => 'cool-id',
+                'name' => 'myimage'
+            ], [ 'source' => 'articles' ])
+        ]);
+
+        $this->assertEquals('articles/dummy.png', $entity->getPath());
     }
 
     public function testDelete()

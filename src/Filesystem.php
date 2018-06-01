@@ -160,17 +160,33 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Returns a newly configured formatter instance
+     * Returns a new configured formatter instance
      * @see \Josbeir\Filesystem\FormatterInterface::__construct
      *
      * @param string $filename Original filename
-     * @param mixed $data Original Data used to format path
      * @param array $config Configuration settings passed to formatter
      *
      * @return \Josbeir\Filesystem\FormatterInterface
      */
-    public function newFormatter($filename, $data = null, array $config = []) : FormatterInterface
+    public function newFormatter($filename, array $config = []) : FormatterInterface
     {
+        $config = $config + [
+            'formatter' => null,
+            'data' => null
+        ];
+
+        if (isset($config['formatter'])) {
+            $this->setFormatter($config['formatter']);
+        }
+
+        $data = null;
+        if (isset($config['data'])) {
+            $data = $config['data'];
+        }
+
+        unset($config['data']);
+        unset($config['formatter']);
+
         if ($this->_formatter === null) {
             $this->setFormatter($this->getFormatterClass());
         }
@@ -223,25 +239,8 @@ class Filesystem implements EventDispatcherInterface
      */
     public function upload($file, array $config = []) : FileEntity
     {
-        $config = $config + [
-            'formatter' => null,
-            'data' => null
-        ];
-
-        if (isset($config['formatter'])) {
-            $this->setFormatter($config['formatter']);
-        }
-
-        $data = null;
-        if (isset($config['data'])) {
-            $data = $config['data'];
-        }
-
-        unset($config['data']);
-        unset($config['formatter']);
-
         $filedata = new FileSourceNormalizer($file);
-        $destPath = $this->newFormatter($filedata->filename, $data, $config)->getPath();
+        $destPath = $this->newFormatter($filedata->filename, $config)->getPath();
 
         $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'destPath'));
 
@@ -403,14 +402,21 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Convencie method for Filesystem::rename
      * Will also update the internal path of the entity, please make sure that information is presisted afterwards if needed!
+     * Returns modified entity on successfull rename.
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param string $newPath New path to rename file to
+     * @param array|string $options Formatter configuration or new path to rename file to or string
      *
-     * @return bool
+     * @return \Josbeir\Filesystem\FileEntityInterface|bool
      */
-    public function rename(FileEntityInterface $entity, $newPath) : bool
+    public function rename(FileEntityInterface $entity, $options)
     {
+        $newPath = $options;
+
+        if (is_array($options)) {
+            $newPath = $this->newFormatter($entity->getPath(), $options)->getPath();
+        }
+
         $event = $this->dispatchEvent('Filesystem.beforeRename', compact('entity', 'newPath'));
 
         if ($event->isStopped()) {
@@ -418,10 +424,10 @@ class Filesystem implements EventDispatcherInterface
         }
 
         if ($this->getDisk()->rename($entity->getPath(), $newPath)) {
-            $entity->path = $newPath;
+            $entity->setPath($newPath);
             $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
 
-            return true;
+            return $entity;
         }
 
         return false;
