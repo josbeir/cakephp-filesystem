@@ -195,7 +195,8 @@ class FilesystemTest extends TestCase
     }
 
     /**
-     * Test uplaodMany using normalied files array
+     * Test uplaodMany using denormalized php's $_FILES array
+     * @link http://php.net/manual/en/features.file-upload.multiple.php
      *
      * @return void
      */
