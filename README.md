@@ -97,11 +97,13 @@ The result from the above example will output a file entity class
 ```php
 object(Josbeir\Filesystem\FileEntity) {
 
+    'uuid' => 'a105663a-f1a5-40ab-8716-fac211fb01fd',
     'path' => 'articles/now_im_called_bar.png',
-    'originalFilename' => 'lame filename.png',
+    'filename' => 'lame filename.png',
     'filesize' => (int) 28277,
     'mime' => 'image/png',
     'hash' => '6b16dafccd78955892d3eae973b49c6c',
+    'meta' => null,
     'created' => object(Cake\I18n\Time) {
 
         'time' => '2018-05-27T15:31:54+00:00',
@@ -113,18 +115,59 @@ object(Josbeir\Filesystem\FileEntity) {
 }
 ```
 
-### File entity methods
 
-File entitites implement \Jsonserialzable interface.
+## Entity properties
 
-Magic getters and settings can be used to access properties on the entity
+A JsonSerializable FileEntity ArrayObject is returned when the file was successfully uploaded.
+Properties can be accessed, checked and manipulated using get** and set** and has**
 
-Some methods are predefined
 ```php
-FileEntity::getPath();
-FileEntity::getHash();
-FileEntity::hasHash($hash);
-FileEntity::toArray();
+$entity->hasUuid('a105663a-f1a5-40ab-8716-fac211fb01fd');
+$entity->getUuid() // a105663a-f1a5-40ab-8716-fac211fb01fd
+$entity->setUuid('a105663a-f1a5-40ab-8716-fac211fb01fd');
+...
+...
+```
+
+Calling json_encode on the entity
+
+```json
+// json_encode($entitiy);
+{
+    "uuid": "3ae258dd-ab1d-425c-b3b0-450f0c702d64",
+    "path": "dummy.png",
+    "filename": "dummy.png",
+    "size": 59992,
+    "mime": "image\/png",
+    "hash": "3ba92ed92481b4fc68842a2b3dcee525",
+    "created": "2018-06-03T09:27:41+00:00",
+    "meta": null
+}
+```
+
+## Recreating entities
+
+If you for instance saved a file entity somwhere as a json object you could recreate the entity using `Filemanager::newEntity`
+
+```php
+$entity = $this->getFilesystem()->newEntity([
+    'uuid' => 'a105663a-f1a5-40ab-8716-fac211fb01fd',
+    'path' => 'articles/now_im_called_bar.png',
+    'filename' => 'lame filename.png',
+    'filesize' => 28277,
+    'mime' => 'image/png',
+    'hash' => '6b16dafccd78955892d3eae973b49c6c',
+    'created' => '2018-05-27T15:31:54+00:00',
+    "meta": [
+        "extra" => "stuf"
+    ]
+]);
+```
+
+Recreating a [Collection](https://book.cakephp.org/3.0/en/core-libraries/collections.html) of entities.
+
+```php
+$entities = FileEntityCollection::createFromArray($entities [, string $filesystem]);
 ```
 
 ## Using your own entities
@@ -133,7 +176,7 @@ Creating your own entities is possible by implementing the FileEntityInterface c
 
 ## Formatters
 
-During upload a formatter is used to set the path and filename. For instance, if you use the EntityFormatter you can use variables available in an entity to build the filename
+During upload a formatter is used to construct a path and filename. For instance, if you use the EntityFormatter you can use variables available in an entity to build the filename.
 
 ```php
 $entity = $this->Posts->get(1);
@@ -226,7 +269,7 @@ $this->getFilesystem()->uploadMany($files, $config);
 
 // Rename an entity
 // Will fire Filesystem.beforeRename and Filesystem.afterRename
-$this->getFilesystem()->rename($entity, $options);
+$this->getFilesystem()->rename($entity, $config, $force);
 
 // Delete an entity from the FS
 // Will fire Filesystem.beforeDelete and Filesystem.afterDelete
@@ -251,28 +294,7 @@ $this->getFilesystem()->newFormatter($filename, $config);
 $this->getFilesystem()->reset();
 ```
 
-## Recreating entities
-
-If you for instance saved a file entity somwhere as a json object you could recreate the entity using `Filemanager::newEntity`
-
-```php
-$entity = $this->getFilesystem()->newEntity([
-    'path' => 'articles/now_im_called_bar.png',
-    'originalFilename' => 'lame filename.png',
-    'filesize' => 28277,
-    'mime' => 'image/png',
-    'hash' => '6b16dafccd78955892d3eae973b49c6c',
-    'created' => '2018-05-27T15:31:54+00:00'
-]);
-```
-
-Recreating a collection of entities, will return a custom [Collection](https://book.cakephp.org/3.0/en/core-libraries/collections.html) instance.
-
-```php
-$entities = FileEntityCollection::createFromArray($entities [, string $filesystem]);
-```
-
-## Event dispatching
+## Events
 
 Events are dispatched when performing an operation on a file entity.
 Currently the following events are implemented:

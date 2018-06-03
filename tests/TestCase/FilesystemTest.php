@@ -195,6 +195,35 @@ class FilesystemTest extends TestCase
     }
 
     /**
+     * Test uplaodMany using normalied files array
+     *
+     * @return void
+     */
+    public function testuploadManyDenormalized()
+    {
+        $structure = [
+            'name' => 'dummy.png',
+            'tmp_name' => $this->testFile,
+            'error' => UPLOAD_ERR_OK,
+            'size' => 1337,
+            'type' => 'image/png'
+        ];
+
+        $uploadsArray = [];
+        for ($x = 0; $x <= 1; $x++) {
+            foreach ($structure as $key => $item) {
+                $uploadArray[$key][$x] = $item;
+            }
+        }
+
+        $collection = $this->manager->uploadMany($uploadArray);
+
+        $this->assertEquals((int)2, $collection->count());
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityCollection', $collection);
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->first());
+    }
+
+    /**
      * Test file uploads using Zend\Diactoros\UploadedFile
      */
     public function testUploadedFileUpload()

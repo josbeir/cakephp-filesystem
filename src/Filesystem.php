@@ -9,6 +9,7 @@ use Josbeir\Filesystem\Exception\FilesystemException;
 use Josbeir\Filesystem\FileEntity;
 use Josbeir\Filesystem\FileEntityCollection;
 use Josbeir\Filesystem\FileSourceNormalizer;
+use Josbeir\Filesystem\FilesystemUtils;
 use Josbeir\Filesystem\FormatterInterface;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem as FlysystemDisk;
@@ -286,6 +287,10 @@ class Filesystem implements EventDispatcherInterface
      */
     public function uploadMany(array $data, array $config = []) : FileEntityCollection
     {
+        if (!empty($data['tmp_name'][0])) {
+            $data = FilesystemUtils::normalizeFilesArray($data);
+        }
+
         $entities = [];
         foreach ($data as $file) {
             $entities[] = $this->upload($file, $config);
@@ -353,17 +358,17 @@ class Filesystem implements EventDispatcherInterface
      * Requires \League\Flysystem\Plugin\ForcedRename plugin to be loaded when using the 'force' method
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param string|array $options Formatter configuration or new path to rename file to or string
+     * @param string|array $config Formatter configuration or new path to rename file to or string
      * @param bool $force Uses ForcedRename (plugin) instead of standard rename
      *
      * @return \Josbeir\Filesystem\FileEntityInterface|bool
      */
-    public function rename(FileEntityInterface $entity, $options = null, bool $force = false)
+    public function rename(FileEntityInterface $entity, $config = null, bool $force = false)
     {
-        $newPath = $options;
+        $newPath = $config;
 
-        if (is_array($options)) {
-            $newPath = $this->newFormatter($entity->getPath(), $options)->getPath();
+        if (is_array($config)) {
+            $newPath = $this->newFormatter($entity->getPath(), $config)->getPath();
         }
 
         $event = $this->dispatchEvent('Filesystem.beforeRename', compact('entity', 'newPath'));
