@@ -41,6 +41,7 @@ class Filesystem implements EventDispatcherInterface
      * `adapter` Default flysystem adapter to use
      * `adapterArguments' Arguments to pass to the flystem adapter
      * `filesystemArguments` Arguments passed to the Filesystem options array
+     * `filesystemPlugins` List of filesystem plugins
      * `formatter` Formatter to be used, can also be a FQCN to a formatter class
      * `entityClass` => File entity class to use, defaults to 'FileEntity'
      */
@@ -49,6 +50,9 @@ class Filesystem implements EventDispatcherInterface
         'adapterArguments' => [ WWW_ROOT . 'files' ],
         'filesystemArguments' => [
             'visibility' => 'public'
+        ],
+        'filesystemPlugins' => [
+            '\League\Flysystem\Plugin\ForcedRename'
         ],
         'formatter' => 'Default',
         'entityClass' => 'Josbeir\Filesystem\FileEntity'
@@ -139,6 +143,10 @@ class Filesystem implements EventDispatcherInterface
                 $this->getAdapter(),
                 $this->getConfig('filesystem')
             );
+
+            foreach ($this->getConfig('filesystemPlugins') as $plugin) {
+                $this->_disk->addPlugin(new $plugin);
+            }
         }
 
         return $this->_disk;
@@ -184,8 +192,7 @@ class Filesystem implements EventDispatcherInterface
             $data = $config['data'];
         }
 
-        unset($config['data']);
-        unset($config['formatter']);
+        unset($config['data'], $config['formatter']);
 
         if ($this->_formatter === null) {
             $this->setFormatter($this->getFormatterClass());
@@ -231,6 +238,7 @@ class Filesystem implements EventDispatcherInterface
      * -------
      * `formatter` name/classname of the formatter to use
      * `data` data to be passed to the formatter
+     * `uuid` Unique file identifier, is auto generated when omitted
      * *All other options are passed to the formatter configuration instance*
      *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException When uploading failed somehow
@@ -239,6 +247,10 @@ class Filesystem implements EventDispatcherInterface
      */
     public function upload($file, array $config = []) : FileEntity
     {
+        $config = $config + [
+            'uuid' => null
+        ];
+
         $filedata = new FileSourceNormalizer($file);
         $formatted = $this->newFormatter($filedata->filename, $config);
 
@@ -246,11 +258,12 @@ class Filesystem implements EventDispatcherInterface
 
         if ($this->getDisk()->putStream($formatted->getPath(), $filedata->resource)) {
             $entity = $this->newEntity([
+                'uuid' => $config['uuid'],
                 'path' => $formatted->getPath(),
                 'filename' => $formatted->getBaseName(),
                 'size' => $filedata->size,
                 'mime' => $filedata->mime,
-                'hash' => $filedata->hash
+                'hash' => $filedata->hash,
             ]);
 
             $this->dispatchEvent('Filesystem.afterUpload', compact('entity', 'filedata'));
@@ -337,12 +350,15 @@ class Filesystem implements EventDispatcherInterface
      * Will also update the internal path of the entity, please make sure that information is presisted afterwards if needed!
      * Returns modified entity on successfull rename.
      *
+     * Requires \League\Flysystem\Plugin\ForcedRename plugin to be loaded when using the 'force' method
+     *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param array|string $options Formatter configuration or new path to rename file to or string
+     * @param string|array $options Formatter configuration or new path to rename file to or string
+     * @param bool $force Uses ForcedRename (plugin) instead of standard rename
      *
      * @return \Josbeir\Filesystem\FileEntityInterface|bool
      */
-    public function rename(FileEntityInterface $entity, $options)
+    public function rename(FileEntityInterface $entity, $options = null, bool $force = false)
     {
         $newPath = $options;
 
@@ -356,7 +372,8 @@ class Filesystem implements EventDispatcherInterface
             return $event->getResult();
         }
 
-        if ($this->getDisk()->rename($entity->getPath(), $newPath)) {
+        $renameMethod = $force ? 'forceRename' : 'rename';
+        if ($this->getDisk()->{$renameMethod}($entity->getPath(), $newPath)) {
             $entity->setPath($newPath);
             $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
 

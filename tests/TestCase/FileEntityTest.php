@@ -32,7 +32,7 @@ class FileEntityTest extends TestCase
 
         $entity = new FileEntity($arrayData);
 
-        $this->assertInstanceOf('Cake\i18n\Time', $entity->created);
+        $this->assertInstanceOf('Cake\i18n\Time', $entity->getCreated());
     }
 
     public function testBadConstructorParams()
@@ -60,17 +60,24 @@ class FileEntityTest extends TestCase
     public function testAttributes()
     {
         $this->assertEquals($this->file->getPath(), 'dummy.png');
-        $this->assertEquals($this->file->filename, 'dummy.png');
-        $this->assertEquals($this->file->size, 59992);
-        $this->assertEquals($this->file->mime, 'image/png');
+        $this->assertEquals($this->file->getFilename(), 'dummy.png');
+        $this->assertEquals($this->file->getSize(), 59992);
+        $this->assertEquals($this->file->getMime(), 'image/png');
         $this->assertEquals($this->file->getHash(), '3ba92ed92481b4fc68842a2b3dcee525');
         $this->assertTrue($this->file->hasHash('3ba92ed92481b4fc68842a2b3dcee525'));
 
         $this->assertInstanceOf('Cake\i18n\Time', $this->file->created);
 
         $this->assertInternalType('string', $this->file->getUuid(), 'UUID not a string');
-        $this->assertInternalType('int', $this->file->size, 'Size not an integer');
+        $this->assertInternalType('int', $this->file->getSize(), 'Size not an integer');
         $this->assertInternalType('array', $this->file->toArray());
+    }
+
+    public function testInvalidGetter()
+    {
+        $this->expectException('\InvalidArgumentException');
+
+        $this->file->getInvalid();
     }
 
     public function testMagic()

@@ -18,7 +18,9 @@ class DefaultFormatter implements FormatterInterface
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected $_defaultConfig = [
+        'folder' => null
+    ];
 
     /**
      * Data to be used for formatting
@@ -80,7 +82,9 @@ class DefaultFormatter implements FormatterInterface
      */
     public function getPath() : string
     {
-        return $this->getBaseName();
+        $folder = $this->getConfig('folder') ? $this->getConfig('folder') . DS : null;
+
+        return $folder . $this->getBaseName();
     }
 
     /**

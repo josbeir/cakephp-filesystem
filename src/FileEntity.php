@@ -6,6 +6,7 @@ use Cake\I18n\Time;
 use Cake\Utility\Text;
 use Josbeir\Filesystem\Exception\FileEntityException;
 use Josbeir\Filesystem\FileEntityInterface;
+use \InvalidArgumentException;
 
 /**
  * Representation of a file entity
@@ -24,7 +25,8 @@ class FileEntity extends ArrayObject implements FileEntityInterface
         'mime',
         'hash',
         'size',
-        'created'
+        'created',
+        'meta'
     ];
 
     /**
@@ -62,45 +64,79 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Magic method for set,get,has methods
+     * Allowed fields can be called and manipulated
+     *
+     * @param string $field Field name
+     * @param array $arguments Arguments
+     *
+     * @return mixed|bool|self
      */
-    public function hasHash(string $hash) : bool
+    public function __call($field, $arguments)
     {
-        return $this->hash == $hash;
+        $prefix = substr($field, 0, 3);
+        if (in_array($prefix, [ 'get', 'set', 'has' ])) {
+            $field = lcfirst(substr($field, 3));
+        }
+
+        if (in_array($field, $this->_allowed)) {
+            /** @return mixed */
+            if ($prefix == 'get') {
+                return $this->get($field);
+            }
+
+            /** @return self */
+            if ($prefix == 'set') {
+                return $this->set($field, $arguments[0]);
+            }
+
+            /** @return bool */
+            if ($prefix == 'has') {
+                return $this->has($field, $arguments[0]);
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('Field %s could not be found', $field));
     }
 
     /**
-     * {@inheritDoc}
+     * Get an internal value
+     *
+     * @param string $field Field name
+     *
+     * @return mixed
      */
-    public function getHash() : string
+    public function get($field)
     {
-        return $this->hash;
+        return $this->{$field};
     }
 
     /**
-     * {@inheritDoc}
+     * Set an internal value
+     *
+     * @param string $field Field name
+     * @param mixed $value Value to set
+     *
+     * @return self
      */
-    public function getPath() : string
+    public function set($field, $value) : self
     {
-        return $this->path;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setPath(string $path) : FileEntityInterface
-    {
-        $this->path = $path;
+        $this->{$field} = $value;
 
         return $this;
     }
 
     /**
-     * {@inheritDoc}
+     * Compare a value with the internal value
+     *
+     * @param string $field Internal field name
+     * @param mixed $value Value to compare with
+     *
+     * @return bool
      */
-    public function getUuid() : string
+    public function has($field, $value) : bool
     {
-        return $this->uuid;
+        return $this->{$field} == $value;
     }
 
     /**
@@ -124,7 +160,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      */
     public function __toString() : string
     {
-        return $this->getPath();
+        return $this->get('path');
     }
 
     /**

@@ -10,6 +10,11 @@ use Zend\Diactoros\UploadedFile;
 
 class FilesystemTest extends TestCase
 {
+    /**
+     * Setup
+     *
+     * @return void
+     */
     public function setUp()
     {
         parent::setUp();
@@ -22,6 +27,11 @@ class FilesystemTest extends TestCase
         $this->manager->getEventManager()->setEventList(new EventList());
     }
 
+    /**
+     * Cleanup
+     *
+     * @return void
+     */
     public function tearDown()
     {
         exec('rm -rf ' . dirname(__DIR__) . '/test_app/assets/*');
@@ -32,6 +42,11 @@ class FilesystemTest extends TestCase
         parent::tearDown();
     }
 
+    /**
+     * Test the default adapter
+     *
+     * @return void
+     */
     public function testDefaultAdapter()
     {
         $manager = new Filesystem;
@@ -41,6 +56,11 @@ class FilesystemTest extends TestCase
         $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $manager->getFormatterClass());
     }
 
+    /**
+     * Test getting an adapter
+     *
+     * @return void
+     */
     public function testGetAdapter()
     {
         $shortNameAdapter = new Filesystem([
@@ -62,6 +82,11 @@ class FilesystemTest extends TestCase
         $unexistingAdapterFs->getAdapter();
     }
 
+    /**
+     * Test setting an adapter
+     *
+     * @return void
+     */
     public function testSetAdapter()
     {
         $adapter = $this->getMockBuilder('\League\Flysystem\Adapter\NullAdapter')->getMock();
@@ -71,6 +96,11 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf('\League\Flysystem\Adapter\NullAdapter', $this->manager->getAdapter());
     }
 
+    /**
+     * Test "uploads" using plain paths
+     *
+     * @return void
+     */
     public function testPathUpload()
     {
         $entity = $this->manager->upload($this->testFile);
@@ -83,6 +113,11 @@ class FilesystemTest extends TestCase
         $this->assertEventFiredWith('Filesystem.afterUpload', 'entity', $entity, $this->manager->getEventManager());
     }
 
+    /**
+     * Test invalid upload
+     *
+     * @return void
+     */
     public function testInvalidUpload()
     {
         $this->expectException('\Josbeir\Filesystem\Exception\FilesystemException');
@@ -90,6 +125,11 @@ class FilesystemTest extends TestCase
         $entity = $this->manager->upload('invalidfile');
     }
 
+    /**
+     * Test upload with entity formatter
+     *
+     * @return void
+     */
     public function testUploadEntityFormatter()
     {
         $entity = $this->manager->upload($this->testFile, [
@@ -107,6 +147,11 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
     }
 
+    /**
+     * Test files upload using $_FILES format
+     *
+     * @return void
+     */
     public function testFilesUpload()
     {
         $uploadArray = [
@@ -124,6 +169,11 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $file);
     }
 
+    /**
+     * Test uplaodMany using normalied files array
+     *
+     * @return void
+     */
     public function testuploadMany()
     {
         $uploadsArray = [];
@@ -144,6 +194,9 @@ class FilesystemTest extends TestCase
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $collection->first());
     }
 
+    /**
+     * Test file uploads using Zend\Diactoros\UploadedFile
+     */
     public function testUploadedFileUpload()
     {
         $data = new UploadedFile(tmpfile(), 1337, UPLOAD_ERR_OK, 'dummy_test.png', 'image/png');
@@ -159,6 +212,11 @@ class FilesystemTest extends TestCase
         $this->assertEventFiredWith('Filesystem.afterUpload', 'entity', $entity, $this->manager->getEventManager());
     }
 
+    /**
+     * Test entity formatters
+     *
+     * @return void
+     */
     public function testEntityFormatter()
     {
         $entity = new Entity([
@@ -185,6 +243,11 @@ class FilesystemTest extends TestCase
         $this->manager->setFormatter('Entity')->newFormatter('filename', [ 'data' => 'imnotvalid' ])->getPath();
     }
 
+    /**
+     * Test custom formatter patterns
+     *
+     * @return void
+     */
     public function testEntityFormatterCustomPattern()
     {
         $entity = new Entity([
@@ -203,12 +266,22 @@ class FilesystemTest extends TestCase
         $this->assertSame('articles/cool-id-hello_world_this_is_cool.png', $path);
     }
 
+    /**
+     * Test exception when invalid formatter is used
+     *
+     * @return void
+     */
     public function testInvalidFormatterClass()
     {
         $this->expectException('\InvalidArgumentException');
         $this->manager->setFormatter('unknown');
     }
 
+    /**
+     * Upload and rename a file
+     *
+     * @return void
+     */
     public function testRename()
     {
         $entity = $this->manager->upload($this->testFile);
@@ -216,7 +289,6 @@ class FilesystemTest extends TestCase
         // rename to dummy2
         $this->manager->rename($entity, 'dummy2.png');
         $this->assertEquals('dummy2.png', $entity->path);
-
         $this->assertEventFiredWith('Filesystem.beforeRename', 'entity', $entity, $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterRename', 'entity', $entity, $this->manager->getEventManager());
 
@@ -228,6 +300,31 @@ class FilesystemTest extends TestCase
         $this->manager->rename($entity, 'dummy.png');
     }
 
+    /**
+     * Upload a file, copy the file and rename it to the original file
+     * Without the force option this operation would throw a FileExistsException
+     *
+     * @return void
+     */
+    public function testForcedRename()
+    {
+        $entity = $this->manager->upload($this->testFile);
+        $this->manager->copy($entity->getPath(), 'dummy2.png');
+
+        $copied = $this->manager->newEntity([
+            'path' => 'dummy2.png',
+            'filename' => 'dummy2.png'
+        ]);
+
+        $this->manager->rename($copied, 'dummy.png', true);
+        $this->assertFileExists(dirname(__DIR__) . '/test_app/assets/dummy.png');
+    }
+
+    /**
+     * Test rename a file based on formatter configuration
+     *
+     * @return void
+     */
     public function testRenameWithFormatter()
     {
         $entity = $this->manager->upload($this->testFile);
@@ -245,25 +342,33 @@ class FilesystemTest extends TestCase
         $this->assertEquals('articles/dummy.png', $entity->getPath());
     }
 
+    /**
+     * Test delete a file
+     *
+     * @return void
+     */
     public function testDelete()
     {
         $entity = $this->manager->upload($this->testFile);
 
         $this->assertFileExists(dirname(__DIR__) . '/test_app/assets/' . $entity->path);
         $this->manager->delete($entity);
-        $this->assertFileNotExists(dirname(__DIR__) . '/test_app/assets/' . $entity->path);
 
+        $this->assertFileNotExists(dirname(__DIR__) . '/test_app/assets/' . $entity->path);
         $this->assertEventFiredWith('Filesystem.beforeDelete', 'entity', $entity, $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterDelete', 'entity', $entity, $this->manager->getEventManager());
     }
 
+    /**
+     * Test reset class
+     *
+     * @return void
+     */
     public function testReset()
     {
         $this->manager->setFormatter('Entity');
         $this->assertEquals('\Josbeir\Filesystem\Formatter\EntityFormatter', $this->manager->getFormatterClass());
-
         $this->manager->reset();
-
         $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $this->manager->getFormatterClass());
     }
 }
