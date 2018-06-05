@@ -57,7 +57,7 @@ class FileEntityTest extends TestCase
         $this->assertEquals($expected, (string)$entity->created);
     }
 
-    public function testAttributes()
+    public function testGetters()
     {
         $this->assertEquals($this->file->getPath(), 'dummy.png');
         $this->assertEquals($this->file->getFilename(), 'dummy.png');
@@ -71,6 +71,15 @@ class FileEntityTest extends TestCase
         $this->assertInternalType('string', $this->file->getUuid(), 'UUID not a string');
         $this->assertInternalType('int', $this->file->getSize(), 'Size not an integer');
         $this->assertInternalType('array', $this->file->toArray());
+    }
+
+    public function testSetters()
+    {
+        $this->file->setPath('new.png');
+        $this->assertEquals('new.png', $this->file->getPath());
+
+        $this->file->setSize(100);
+        $this->assertEquals(100, $this->file->getSize());
     }
 
     public function testInvalidGetter()

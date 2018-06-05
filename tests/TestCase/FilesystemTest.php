@@ -387,7 +387,8 @@ class FilesystemTest extends TestCase
      *
      * @return void
      */
-    public function testRenameEventAbort() {
+    public function testRenameEventAbort()
+    {
         $entity = $this->manager->upload($this->testFile);
 
         $this->manager->getEventManager()->on('Filesystem.beforeRename', function ($event, $file, $newPath) {
@@ -463,6 +464,20 @@ class FilesystemTest extends TestCase
     }
 
     /**
+     * Test deletion of unexisting file
+     *
+     * @return void
+     */
+    public function testDeleteUnexisting()
+    {
+        $file = $this->manager->newEntity([
+            'path' => 'idontexist.gif'
+        ]);
+
+        $this->assertFalse($this->manager->delete($file));
+    }
+
+    /**
      * Test delete events
      *
      * @return void
@@ -492,7 +507,8 @@ class FilesystemTest extends TestCase
      *
      * @return void
      */
-    public function testDeleteEventsAbort() {
+    public function testDeleteEventsAbort()
+    {
         $entity = $this->manager->upload($this->testFile);
 
         $this->manager->getEventManager()->on('Filesystem.beforeDelete', function ($event, $file) {
