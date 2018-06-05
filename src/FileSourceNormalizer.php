@@ -42,14 +42,14 @@ class FileSourceNormalizer
     /**
      * File type
      *
-     * @var string
+     * @var string|null
      */
     public $mime;
 
     /**
      * File size
      *
-     * @var int
+     * @var int|null
      */
     public $size;
 
@@ -57,9 +57,11 @@ class FileSourceNormalizer
      * Constructor
      *
      * @param string|array|\Zend\Diactoros\UploadedFile $uploadData Mixed upload data
-     * @param string $config Config options
+     * @param array $config Config options
      *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException When after parsing no valid file resource could be detected
+     *
+     * @return void
      */
     public function __construct($uploadData, array $config = [])
     {
@@ -131,8 +133,8 @@ class FileSourceNormalizer
         $this->filename = $file->name ?: $this->getConfig('fallbackFilename');
         $this->resource = fopen($path, 'r+');
         $this->hash = hash_file($this->getConfig('hashingAlgo'), $path);
-        $this->size = $file->size();
-        $this->mime = $file->mime();
+        $this->size = $file->size() ?: 0;
+        $this->mime = $file->mime() ?: null;
     }
 
     /**

@@ -6,6 +6,22 @@ use JsonSerializable;
 interface FileEntityInterface extends JsonSerializable
 {
     /**
+     * Return the file entity path
+     *
+     * @return string
+     */
+    public function getPath() : string;
+
+    /**
+     * Return the file entity path
+     *
+     * @param string $path Entity path
+     *
+     * @return self
+     */
+    public function setPath(string $path) : self;
+
+    /**
      * Get file data as array
      *
      * @return array

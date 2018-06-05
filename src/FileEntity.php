@@ -142,6 +142,22 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
+    public function getPath() : string
+    {
+        return $this->get('path');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setPath(string $path) : FileEntityInterface
+    {
+        return $this->set('path', $path);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function toArray() : array
     {
         return $this->getArrayCopy();

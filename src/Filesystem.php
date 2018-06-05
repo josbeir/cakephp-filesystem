@@ -6,8 +6,8 @@ use Cake\Event\EventDispatcherInterface;
 use Cake\Event\EventDispatcherTrait;
 use InvalidArgumentException;
 use Josbeir\Filesystem\Exception\FilesystemException;
-use Josbeir\Filesystem\FileEntity;
 use Josbeir\Filesystem\FileEntityCollection;
+use Josbeir\Filesystem\FileEntityInterface;
 use Josbeir\Filesystem\FileSourceNormalizer;
 use Josbeir\Filesystem\FilesystemUtils;
 use Josbeir\Filesystem\FormatterInterface;
@@ -62,7 +62,7 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Holds instance of the flysystem adapter
      *
-     * @var \League\Flysystem\AdapterInterface
+     * @var \League\Flysystem\AdapterInterface|null
      */
     protected $_adapter;
 
@@ -76,7 +76,7 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Current formatter classname
      *
-     * @var string
+     * @var string|null
      */
     protected $_formatter;
 
@@ -238,9 +238,9 @@ class Filesystem implements EventDispatcherInterface
      * `uuid` Unique file identifier, is auto generated when omitted
      * *All other options are passed to the formatter configuration instance*
      *
-     * @return FileEntity|null Either the destination path or null
+     * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
      */
-    public function upload($file, array $config = []) : FileEntity
+    public function upload($file, array $config = []) : FileEntityInterface
     {
         $config = $config + [
             'uuid' => null

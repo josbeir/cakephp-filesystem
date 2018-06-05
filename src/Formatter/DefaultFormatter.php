@@ -48,9 +48,7 @@ class DefaultFormatter implements FormatterInterface
     }
 
     /**
-     * Return the basename of current file
-     *
-     * @return string
+     * {@inheritDoc}
      */
     public function getBaseName() : string
     {

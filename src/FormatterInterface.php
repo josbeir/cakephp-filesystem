@@ -20,4 +20,11 @@ interface FormatterInterface
      * @return string
      */
     public function getPath() : string;
+
+    /**
+     * Return the basename of current file
+     *
+     * @return string
+     */
+    public function getBaseName() : string;
 }

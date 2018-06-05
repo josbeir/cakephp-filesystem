@@ -37,7 +37,7 @@
     },
     "scripts": {
         "test": "phpunit --colors=always",
-        "phpstan": "phpstan analyse --no-progress -c phpstan.neon -l 1 src",
+        "phpstan": "phpstan analyse --no-progress -c phpstan.neon -l 4 src",
         "cs-check": "phpcs --colors -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP ./src"
     }
 }
