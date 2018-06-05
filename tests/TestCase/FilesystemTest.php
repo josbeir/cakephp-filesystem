@@ -114,6 +114,30 @@ class FilesystemTest extends TestCase
     }
 
     /**
+     * Test upload events
+     *
+     * @return void
+     */
+    public function testUploadEvents()
+    {
+        $called = 0;
+        $this->manager->getEventManager()->on('Filesystem.beforeUpload', function ($event, $filedata, $formatter) use (&$called) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileSourceNormalizer', $filedata);
+            $this->assertInstanceOf('\Josbeir\Filesystem\FormatterInterface', $formatter);
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterUpoad', function ($event, $file) use (&$called) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+        });
+
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->assertEquals(1, $called);
+    }
+
+    /**
      * Test invalid upload
      *
      * @return void
@@ -331,6 +355,55 @@ class FilesystemTest extends TestCase
     }
 
     /**
+     * Test rename events
+     *
+     * @return void
+     */
+    public function testRenameEvents()
+    {
+        $called = 0;
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeRename', function ($event, $file, $newPath) use (&$called, $entity) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+            $this->assertEquals('dummy2.png', $newPath);
+            $this->assertSame($entity, $file);
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterRename', function ($event, $file) use (&$called) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+            $this->assertEquals('dummy2.png', $file->getPath());
+        });
+
+        $this->manager->rename($entity, 'dummy2.png');
+
+        $this->assertEquals(2, $called);
+    }
+
+    /**
+     * Test rename abort event
+     *
+     * @return void
+     */
+    public function testRenameEventAbort() {
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeRename', function ($event, $file, $newPath) {
+            $event->stopPropagation();
+
+            return 'hello!';
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterRename', function ($event) {
+            $this->fail('Should not be fired');
+        });
+
+        $this->assertSame('hello!', $this->manager->rename($entity, 'dummy2.png'));
+    }
+
+    /**
      * Upload a file, copy the file and rename it to the original file
      * Without the force option this operation would throw a FileExistsException
      *
@@ -387,6 +460,52 @@ class FilesystemTest extends TestCase
         $this->assertFileNotExists(dirname(__DIR__) . '/test_app/assets/' . $entity->path);
         $this->assertEventFiredWith('Filesystem.beforeDelete', 'entity', $entity, $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterDelete', 'entity', $entity, $this->manager->getEventManager());
+    }
+
+    /**
+     * Test delete events
+     *
+     * @return void
+     */
+    public function testDeleteEvents()
+    {
+        $called = 0;
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeDelete', function ($event, $file) use (&$called, $entity) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+            $this->assertSame($entity, $file);
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterDelete', function ($event, $file) use (&$called) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+        });
+
+        $this->manager->delete($entity);
+        $this->assertEquals(2, $called);
+    }
+
+    /**
+     * Test delete abort event
+     *
+     * @return void
+     */
+    public function testDeleteEventsAbort() {
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeDelete', function ($event, $file) {
+            $event->stopPropagation();
+
+            return 'hello!';
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterRename', function ($event, $file) {
+            $this->fail('Should not be fired');
+        });
+
+        $this->assertSame('hello!', $this->manager->delete($entity));
     }
 
     /**

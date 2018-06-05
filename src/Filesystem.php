@@ -188,16 +188,12 @@ class Filesystem implements EventDispatcherInterface
             $this->setFormatter($config['formatter']);
         }
 
-        $data = null;
-        if (isset($config['data'])) {
-            $data = $config['data'];
-        }
-
-        unset($config['data'], $config['formatter']);
-
         if ($this->_formatter === null) {
             $this->setFormatter($this->getFormatterClass());
         }
+
+        $data = $config['data'] ?? null;
+        unset($config['data'], $config['formatter']);
 
         return new $this->_formatter($filename, $data, $config);
     }
@@ -242,8 +238,6 @@ class Filesystem implements EventDispatcherInterface
      * `uuid` Unique file identifier, is auto generated when omitted
      * *All other options are passed to the formatter configuration instance*
      *
-     * @throws \Josbeir\Filesystem\Exception\FilesystemException When uploading failed somehow
-     *
      * @return FileEntity|null Either the destination path or null
      */
     public function upload($file, array $config = []) : FileEntity
@@ -253,28 +247,26 @@ class Filesystem implements EventDispatcherInterface
         ];
 
         $filedata = new FileSourceNormalizer($file);
-        $formatted = $this->newFormatter($filedata->filename, $config);
+        $formatter = $this->newFormatter($filedata->filename, $config);
 
-        $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'destPath'));
+        $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'formatter'));
 
-        if ($this->getDisk()->putStream($formatted->getPath(), $filedata->resource)) {
-            $entity = $this->newEntity([
-                'uuid' => $config['uuid'],
-                'path' => $formatted->getPath(),
-                'filename' => $formatted->getBaseName(),
-                'size' => $filedata->size,
-                'mime' => $filedata->mime,
-                'hash' => $filedata->hash,
-            ]);
+        $this->getDisk()->putStream($formatter->getPath(), $filedata->resource);
 
-            $this->dispatchEvent('Filesystem.afterUpload', compact('entity', 'filedata'));
+        $entity = $this->newEntity([
+            'uuid' => $config['uuid'],
+            'path' => $formatter->getPath(),
+            'filename' => $formatter->getBaseName(),
+            'size' => $filedata->size,
+            'mime' => $filedata->mime,
+            'hash' => $filedata->hash,
+        ]);
 
-            $filedata->shutdown();
+        $this->dispatchEvent('Filesystem.afterUpload', compact('entity'));
 
-            return $entity;
-        }
+        $filedata->shutdown();
 
-        throw new FilesystemException('Upload failed');
+        return $entity;
     }
 
     /**
@@ -361,7 +353,7 @@ class Filesystem implements EventDispatcherInterface
      * @param string|array $config Formatter configuration or new path to rename file to or string
      * @param bool $force Uses ForcedRename (plugin) instead of standard rename
      *
-     * @return \Josbeir\Filesystem\FileEntityInterface|bool
+     * @return \Josbeir\Filesystem\FileEntityInterface
      */
     public function rename(FileEntityInterface $entity, $config = null, bool $force = false)
     {
@@ -378,14 +370,11 @@ class Filesystem implements EventDispatcherInterface
         }
 
         $renameMethod = $force ? 'forceRename' : 'rename';
-        if ($this->getDisk()->{$renameMethod}($entity->getPath(), $newPath)) {
-            $entity->setPath($newPath);
-            $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
+        $this->getDisk()->{$renameMethod}($entity->getPath(), $newPath);
+        $entity->setPath($newPath);
+        $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
 
-            return $entity;
-        }
-
-        return false;
+        return $entity;
     }
 
     /**
