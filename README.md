@@ -17,6 +17,7 @@
 ## Requirements
 
 * CakePHP 3.6+
+* PHP 7.1
 
 ## Installation
 
