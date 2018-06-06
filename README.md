@@ -1,6 +1,8 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.txt)
 [![Build Status](https://travis-ci.org/josbeir/cakephp-filesystem.svg?branch=master)](https://travis-ci.org/josbeir/cakephp-filesystem)
 [![codecov](https://codecov.io/gh/josbeir/cakephp-filesystem/branch/master/graph/badge.svg)](https://codecov.io/gh/josbeir/cakephp-filesystem)
+[![Latest Stable Version](https://poser.pugx.org/josbeir/cakephp-filesystem/v/stable)](https://packagist.org/packages/josbeir/cakephp-filesystem)
+[![Total Downloads](https://poser.pugx.org/josbeir/cakephp-filesystem/downloads)](https://packagist.org/packages/josbeir/cakephp-filesystem)
 
 # Filesystem plugin for CakePHP
 
