@@ -268,6 +268,10 @@ $this->getFilesystem()->upload($data, $config);
 // Will fire Filesystem.beforeUpload and Filesystem.afterUpload (after each file upload)
 $this->getFilesystem()->uploadMany($files, $config);
 
+// Copy an entity
+// Will fire Filesystem.beforeCopy and Filesystem.afterCopy
+$this->getFilesystem()->copy($entity, $config, $force);
+
 // Rename an entity
 // Will fire Filesystem.beforeRename and Filesystem.afterRename
 $this->getFilesystem()->rename($entity, $config, $force);
@@ -302,12 +306,14 @@ Currently the following events are implemented:
 
 | Name | Passed params | Stoppable?  |
 |------| ---------- | ----------- |
-| Filesystem.beforeUpload | FileSource, destinationPath | No
+| Filesystem.beforeUpload | FileSource, Formatter | No
 | Filesystem.afterUpload | FileEntity, FileSource | No
 | Filesystem.beforeDelete | FileEntity | Yes
 | Filesystem.afterDelete | FileEntity | No
 | Filesystem.beforeRename | FileEntity, new path | Yes
 | Filesystem.afterRename | FileEntity | No
+| Filesystem.beforeCopy | FileEntity, destination path | Yes
+| Filesystem.afterCopy | (new) FileEntity, (old) FileEntity | No
 
 ## Contribute
 
