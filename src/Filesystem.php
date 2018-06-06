@@ -53,7 +53,8 @@ class Filesystem implements EventDispatcherInterface
             'visibility' => 'public'
         ],
         'filesystemPlugins' => [
-            '\League\Flysystem\Plugin\ForcedRename'
+            '\League\Flysystem\Plugin\ForcedRename',
+            '\League\Flysystem\Plugin\ForcedCopy',
         ],
         'formatter' => 'Default',
         'entityClass' => 'Josbeir\Filesystem\FileEntity'
@@ -350,7 +351,7 @@ class Filesystem implements EventDispatcherInterface
      * Requires \League\Flysystem\Plugin\ForcedRename plugin to be loaded when using the 'force' method
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param string|array $config Formatter configuration or new path to rename file to or string
+     * @param string|array $config Formatter configuration or new path to rename file to
      * @param bool $force Uses ForcedRename (plugin) instead of standard rename
      *
      * @return \Josbeir\Filesystem\FileEntityInterface
@@ -358,13 +359,11 @@ class Filesystem implements EventDispatcherInterface
     public function rename(FileEntityInterface $entity, $config = null, bool $force = false)
     {
         $newPath = $config;
-
         if (is_array($config)) {
             $newPath = $this->newFormatter($entity->getPath(), $config)->getPath();
         }
 
         $event = $this->dispatchEvent('Filesystem.beforeRename', compact('entity', 'newPath'));
-
         if ($event->isStopped()) {
             return $event->getResult();
         }
@@ -375,6 +374,41 @@ class Filesystem implements EventDispatcherInterface
         $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
 
         return $entity;
+    }
+
+    /**
+     * Convencie method for Filesystem::copy
+     * Will return a new entity based on the given one, with the new path present
+     *
+     * Requires \League\Flysystem\Plugin\ForcedCopy plugin to be loaded when using the 'force' method
+     *
+     * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
+     * @param string|array $config Formatter configuration or new path to copy file to
+     * @param bool $force Uses ForcedCopy (plugin) instead of standard copy
+     *
+     * @return \Josbeir\Filesystem\FileEntityInterface
+     */
+    public function copy(FileEntityInterface $entity, $config = null, bool $force = false)
+    {
+        $destination = $config;
+        if (is_array($config)) {
+            $destination = $this->newFormatter($entity->getPath(), $config)->getPath();
+        }
+
+        $event = $this->dispatchEvent('Filesystem.beforeCopy', compact('entity', 'destination'));
+        if ($event->isStopped()) {
+            return $event->getResult();
+        }
+
+        $copyMethod = $force ? 'forceCopy' : 'copy';
+        $this->getDisk()->{$copyMethod}($entity->getPath(), $destination);
+
+        $copiedEntity = $this->newEntity($entity->toArray());
+        $copiedEntity->setPath($destination);
+
+        $this->dispatchEvent('Filesystem.afterCopy', compact('copiedEntity', 'entity'));
+
+        return $copiedEntity;
     }
 
     /**

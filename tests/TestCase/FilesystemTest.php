@@ -413,7 +413,7 @@ class FilesystemTest extends TestCase
     public function testForcedRename()
     {
         $entity = $this->manager->upload($this->testFile);
-        $this->manager->copy($entity->getPath(), 'dummy2.png');
+        $this->manager->getDisk()->copy($entity->getPath(), 'dummy2.png');
 
         $copied = $this->manager->newEntity([
             'path' => 'dummy2.png',
@@ -444,6 +444,110 @@ class FilesystemTest extends TestCase
         ]);
 
         $this->assertEquals('articles/dummy.png', $entity->getPath());
+    }
+
+   /**
+     * Upload and rename a file
+     *
+     * @return void
+     */
+    public function testCopy()
+    {
+        $entity = $this->manager->upload($this->testFile);
+        $copy = $this->manager->copy($entity, 'dummy2.png');
+
+        $this->assertEquals('dummy.png', $entity->path);
+        $this->assertEquals('dummy2.png', $copy->path);
+        $this->assertNotEquals($entity, $copy);
+        $this->assertEventFiredWith('Filesystem.beforeCopy', 'entity', $entity, $this->manager->getEventManager());
+        $this->assertEventFiredWith('Filesystem.afterCopy', 'entity', $entity, $this->manager->getEventManager());
+    }
+
+   /**
+     * Upload and rename a file
+     *
+     * @return void
+     */
+    public function testCopyWithFormatter()
+    {
+        $entity = $this->manager->upload($this->testFile);
+        $copy = $this->manager->copy($entity, [
+            'formatter' => 'Entity',
+            'data' => new Entity([
+                'id' => 'cool-id',
+                'name' => 'myimage'
+            ], [ 'source' => 'articles' ])
+        ]);
+
+        $this->assertEquals('articles/dummy.png', $copy->path);
+        $this->assertNotEquals($entity, $copy);
+    }
+
+    /**
+     * Upload a file, copy the file and rename it to the original file
+     * Without the force option this operation would throw a FileExistsException
+     *
+     * @return void
+     */
+    public function testForcedCopy()
+    {
+        $entity = $this->manager->upload($this->testFile);
+        $this->manager->copy($entity, 'dummy2.png');
+        $this->manager->copy($entity, 'dummy2.png', true);
+        $this->expectException('League\Flysystem\FileExistsException');
+        $this->manager->copy($entity, 'dummy2.png');
+    }
+
+    /**
+     * Test rename abort event
+     *
+     * @return void
+     */
+    public function testCopyEventAbort()
+    {
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeCopy', function ($event, $file, $newPath) {
+            $event->stopPropagation();
+
+            return 'hello!';
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterCopy', function ($event) {
+            $this->fail('Should not be fired');
+        });
+
+        $this->assertSame('hello!', $this->manager->copy($entity, 'dummy2.png'));
+    }
+
+    /**
+     * Test copy events
+     *
+     * @return void
+     */
+    public function testCopyEvents()
+    {
+        $called = 0;
+        $entity = $this->manager->upload($this->testFile);
+
+        $this->manager->getEventManager()->on('Filesystem.beforeCopy', function ($event, $file, $destination) use (&$called, $entity) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+            $this->assertEquals('dummy2.png', $destination);
+            $this->assertSame($entity, $file);
+        });
+
+        $this->manager->getEventManager()->on('Filesystem.afterCopy', function ($event, $copied, $file) use (&$called) {
+            $called++;
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $copied);
+            $this->assertInstanceOf('\Josbeir\Filesystem\FileEntityInterface', $file);
+            $this->assertNotEquals($copied, $file);
+            $this->assertEquals('dummy2.png', $copied->getPath());
+        });
+
+        $this->manager->copy($entity, 'dummy2.png');
+
+        $this->assertEquals(2, $called);
     }
 
     /**
@@ -535,5 +639,18 @@ class FilesystemTest extends TestCase
         $this->assertEquals('\Josbeir\Filesystem\Formatter\EntityFormatter', $this->manager->getFormatterClass());
         $this->manager->reset();
         $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $this->manager->getFormatterClass());
+    }
+
+    /**
+     * Test __call
+     *
+     * @return void
+     */
+    public function testCallProxy()
+    {
+        $entity = $this->manager->upload($this->testFile);
+        $result = $this->manager->listContents();
+
+        $this->assertSame('dummy.png', $result[0]['path']);
     }
 }
