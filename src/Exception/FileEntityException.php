@@ -1,4 +1,6 @@
 <?php
+declare(strict_types = 1);
+
 namespace Josbeir\Filesystem\Exception;
 
 class FileEntityException extends \Exception
