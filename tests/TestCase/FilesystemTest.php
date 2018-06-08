@@ -446,7 +446,7 @@ class FilesystemTest extends TestCase
         $this->assertEquals('articles/dummy.png', $entity->getPath());
     }
 
-   /**
+    /**
      * Upload and rename a file
      *
      * @return void
@@ -463,7 +463,7 @@ class FilesystemTest extends TestCase
         $this->assertEventFiredWith('Filesystem.afterCopy', 'entity', $entity, $this->manager->getEventManager());
     }
 
-   /**
+    /**
      * Upload and rename a file
      *
      * @return void
