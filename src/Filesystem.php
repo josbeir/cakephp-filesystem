@@ -260,14 +260,12 @@ class Filesystem implements EventDispatcherInterface
             'uuid' => $config['uuid'],
             'path' => $formatter->getPath(),
             'filename' => $formatter->getBaseName(),
-            'size' => $filedata->size,
-            'mime' => $filedata->mime,
+            'size' => $this->getDisk()->getSize($formatter->getPath()),
+            'mime' => $this->getDisk()->getMimetype($formatter->getPath()),
             'hash' => $filedata->hash,
         ]);
 
         $this->dispatchEvent('Filesystem.afterUpload', compact('entity'));
-
-        $filedata->shutdown();
 
         return $entity;
     }

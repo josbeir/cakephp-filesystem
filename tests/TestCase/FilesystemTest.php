@@ -164,9 +164,10 @@ class FilesystemTest extends TestCase
             ], [ 'source' => 'articles' ])
         ]);
 
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
+        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
 
-        $this->assertSame('articles/dummy.png', $entity->path);
+        $this->assertSame('articles/dummy.png', $entity->getPath());
+        $this->assertSame('image/png', $entity->getMime());
         $this->assertTrue(file_exists($dest));
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
     }
@@ -186,11 +187,12 @@ class FilesystemTest extends TestCase
             'type' => 'image/png'
         ];
 
-        $file = $this->manager->upload($uploadArray);
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $file->path;
+        $entity = $this->manager->upload($uploadArray);
+        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
 
         $this->assertFileExists($dest);
-        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $file);
+        $this->assertSame('image/png', $entity->getMime());
+        $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
     }
 
     /**
@@ -261,6 +263,7 @@ class FilesystemTest extends TestCase
 
         $this->assertFileExists($dest);
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
+        $this->assertSame('image/png', $entity->getMime());
 
         $this->assertEventFired('Filesystem.beforeUpload', $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterUpload', 'entity', $entity, $this->manager->getEventManager());

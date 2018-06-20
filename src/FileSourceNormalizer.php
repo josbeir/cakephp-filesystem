@@ -42,13 +42,6 @@ class FileSourceNormalizer
     public $hash;
 
     /**
-     * File type
-     *
-     * @var string|null
-     */
-    public $mime;
-
-    /**
      * File size
      *
      * @var int|null
@@ -102,7 +95,6 @@ class FileSourceNormalizer
         $this->resource = $stream->detach();
         $this->hash = $hash;
         $this->size = $uploadedFile->getSize();
-        $this->mime = $uploadedFile->getClientMediaType();
     }
 
     /**
@@ -118,7 +110,6 @@ class FileSourceNormalizer
         $this->resource = fopen($file['tmp_name'], 'r+');
         $this->hash = hash_file($this->getConfig('hashingAlgo'), $file['tmp_name']);
         $this->size = $file['size'];
-        $this->mime = $file['type'];
     }
 
     /**
@@ -136,7 +127,6 @@ class FileSourceNormalizer
         $this->resource = fopen($path, 'r+');
         $this->hash = hash_file($this->getConfig('hashingAlgo'), $path);
         $this->size = $file->size() ?: 0;
-        $this->mime = $file->mime() ?: null;
     }
 
     /**
@@ -144,7 +134,7 @@ class FileSourceNormalizer
      *
      * @return void
      */
-    public function shutdown()
+    public function __destruct()
     {
         fclose($this->resource);
     }
