@@ -232,7 +232,7 @@ The default EntityFormatter pattern is ``{entity-source}/{file-name}.{file-ext}`
 
 ### Setting up formatters
 
-Formatters are simple classes used to name and clean file paths during upload, this plugins currently comes with two formatters.
+Formatters are simple classes used to name and clean file paths during upload, this plugin currently comes with two formatters.
 
 * **DefaultFormatter**, this just returns the 'cleaned' filename
 * **EntityFormatter**, extends the default formatter, expects an EntityInterface as data and used to format filenames based on data from an entity.
@@ -265,7 +265,7 @@ use Josbeir\Filesystem\DefaultFormatter;
 class MyFormatter extends DefaultFormatter
 {
     // Extra settings?
-    $_defaultConfig = [
+    protected $_defaultConfig = [
         'mysetting1' => 'hello'
         'mysetting2' => 'world'
     ];
