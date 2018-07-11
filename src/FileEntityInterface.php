@@ -28,12 +28,12 @@ interface FileEntityInterface extends JsonSerializable
      *
      * @return array
      */
-    public function toArray() : array;
+    public function toArray();
 
     /**
      * Should return path if the object is cast as string
      *
      * @return string
      */
-    public function __toString() : string;
+    public function __toString();
 }
