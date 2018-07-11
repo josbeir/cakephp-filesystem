@@ -177,6 +177,45 @@ $entities = FileEntityCollection::createFromArray($entities [, string $filesyste
 
 Creating your own entities is possible by implementing the FileEntityInterface class and setting the entity class FQCN in your configuration's ``entityClass`` key.
 
+### Example on using Cake ORM entities instead of the built entity class
+
+If you want to store your entities in the ORM you can easily swap the entity class with an ORM one. The only requirement is that the entity implements the ``FileEntityInterface`` class.
+
+```php
+return [
+    'Filesystem' => [
+        'default' => [
+            'entityClass' => 'App\Model\Entity\MyFileEntity'
+        ]
+]
+```
+
+Then make sure your ORM entity implements the FileEntityInterface and its required method 'getPath':
+
+```php
+namespace App\Model\Entity;
+
+use Cake\ORM\Entity;
+use Josbeir\Filesystem\FileEntityInterface;
+
+class MyFileEntity extends Entity implements FileEntityInterface
+{
+    public function getPath() : string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path) : FileEntityInterface
+    {
+        $this->set('path', $path);
+
+        return $this;
+    }
+}
+```
+
+Now when uploading and using files you can work with ORM entities.
+
 ## Formatters
 
 During upload a formatter is used to construct a path and filename. For instance, if you use the EntityFormatter you can use variables available in an entity to build the filename.
