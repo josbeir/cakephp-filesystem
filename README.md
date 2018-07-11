@@ -6,7 +6,7 @@
 
 # Filesystem plugin for CakePHP
 
-(WIP) CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/docs/) as it's backend.
+CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/docs/) as it's backend.
 
 ## Why use it
 
