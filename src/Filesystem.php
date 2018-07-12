@@ -238,17 +238,12 @@ class Filesystem implements EventDispatcherInterface
      * -------
      * `formatter` name/classname of the formatter to use
      * `data` data to be passed to the formatter
-     * `uuid` Unique file identifier, is auto generated when omitted
      * *All other options are passed to the formatter configuration instance*
      *
      * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
      */
     public function upload($file, array $config = []) : FileEntityInterface
     {
-        $config = $config + [
-            'uuid' => null
-        ];
-
         $filedata = new FileSourceNormalizer($file);
         $formatter = $this->newFormatter($filedata->filename, $config);
 
@@ -257,7 +252,6 @@ class Filesystem implements EventDispatcherInterface
         $this->getDisk()->putStream($formatter->getPath(), $filedata->resource);
 
         $entity = $this->newEntity([
-            'uuid' => $config['uuid'],
             'path' => $formatter->getPath(),
             'filename' => $formatter->getBaseName(),
             'size' => $this->getDisk()->getSize($formatter->getPath()),
