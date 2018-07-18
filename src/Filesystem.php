@@ -302,7 +302,7 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Convencie method for Filesystem::has
+     * Convenience method for Filesystem::has
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
      *
@@ -314,7 +314,7 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Convenciece method for FilesystemInterface::delete
+     * Convenience method for FilesystemInterface::delete
      *
      * @param \Josbeir\Filesystem\FileEntity $entity File enttity class
      *
@@ -338,14 +338,14 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Convencie method for Filesystem::rename
+     * Convenience method for Filesystem::rename
      * Will also update the internal path of the entity, please make sure that information is presisted afterwards if needed!
      * Returns modified entity on successfull rename.
      *
      * Requires \League\Flysystem\Plugin\ForcedRename plugin to be loaded when using the 'force' method
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param string|array $config Formatter configuration or new path to rename file to
+     * @param string|null|array $config Formatter configuration or new path to rename file to
      * @param bool $force Uses ForcedRename (plugin) instead of standard rename
      *
      * @return \Josbeir\Filesystem\FileEntityInterface
@@ -371,13 +371,13 @@ class Filesystem implements EventDispatcherInterface
     }
 
     /**
-     * Convencie method for Filesystem::copy
+     * Convenience method for Filesystem::copy
      * Will return a new entity based on the given one, with the new path present
      *
      * Requires \League\Flysystem\Plugin\ForcedCopy plugin to be loaded when using the 'force' method
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     * @param string|array $config Formatter configuration or new path to copy file to
+     * @param string|null|array $config Formatter configuration or new path to copy file to
      * @param bool $force Uses ForcedCopy (plugin) instead of standard copy
      *
      * @return \Josbeir\Filesystem\FileEntityInterface
