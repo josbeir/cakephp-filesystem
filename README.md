@@ -356,6 +356,53 @@ Currently the following events are implemented:
 | Filesystem.beforeCopy | FileEntity, destination path | Yes
 | Filesystem.afterCopy | (new) FileEntity, (old) FileEntity | No
 
+## Extras
+
+Because this plugin is using flysystem at its core one could easily integrate with other flysystem compatible code.
+Accessing the flysystem directly can be done using ``Filesystem::getDisk()``.
+
+As an example we can work with [Admad's glide plugin](https://github.com/ADmad/cakephp-glide) and use configured filesystems as source and cache:
+
+First set up your default and cache configurations:
+
+```php
+<?php
+return [
+    'Filesystem' => [
+        'default' => [
+            'adapter' => 'Local',
+            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],
+            'entityClass' => 'App\Model\Entity\FilesystemFile'
+        ],
+        'cache' => [
+            'adapter' => 'Local',
+            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'cached' ],
+        ]
+    ]
+];
+``
+
+Then set up the Glide middleware using the configured filesystems mentioned above:
+
+```php
+use FilesystemAwareTrait;
+
+.. 
+..
+
+$routes->registerMiddleware('glide', new GlideMiddleware([
+    'server' => [
+        'source' => $this->getFilesystem()->getDisk(),
+        'cache' => $this->getFilesystem('cache')->getDisk()
+    ]
+]));
+
+$routes->scope('/images', [ 'cache' => false ], function ($routes) {
+    $routes->applyMiddleware('glide');
+    $routes->connect('/*');
+});
+```
+
 ## Contribute
 
 Before submitting a PR make sure:
