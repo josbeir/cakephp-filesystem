@@ -380,7 +380,7 @@ return [
         ]
     ]
 ];
-``
+```
 
 Then set up the Glide middleware using the configured filesystems mentioned above:
 
