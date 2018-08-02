@@ -8,7 +8,25 @@
 
 CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/docs/) as it's backend.
 
-## Why use it
+<!-- TOC -->
+
+- [Why](#why)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Simple upload example](#simple-upload-example)
+- [Entity properties](#entity-properties)
+- [Recreating entities](#recreating-entities)
+- [Using your own entities](#using-your-own-entities)
+- [Formatters](#formatters)
+- [Methods](#methods)
+- [Events](#events)
+- [Extras](#extras)
+- [Contribute](#contribute)
+
+<!-- /TOC -->
+
+## Why
 
 - Easy access to Flysystem filesystems in your application
 - Upload normalization, accepts $_FILES, Zend\Diactoros\UploadedFile or just a path on the local FS
@@ -387,7 +405,7 @@ Then set up the Glide middleware using the configured filesystems mentioned abov
 ```php
 use FilesystemAwareTrait;
 
-.. 
+..
 ..
 
 $routes->registerMiddleware('glide', new GlideMiddleware([
