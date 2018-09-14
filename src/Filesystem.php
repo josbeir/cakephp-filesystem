@@ -47,6 +47,7 @@ class Filesystem implements EventDispatcherInterface
      * `filesystemPlugins` List of filesystem plugins
      * `formatter` Formatter to be used, can also be a FQCN to a formatter class
      * `entityClass` => File entity class to use, defaults to 'FileEntity'
+     * `normalizer` => Options passed to the FileSourceNormalizer class
      */
     protected $_defaultConfig = [
         'adapter' => '\League\Flysystem\Adapter\Local',
@@ -59,7 +60,8 @@ class Filesystem implements EventDispatcherInterface
             '\League\Flysystem\Plugin\ForcedCopy',
         ],
         'formatter' => 'Default',
-        'entityClass' => 'Josbeir\Filesystem\FileEntity'
+        'entityClass' => 'Josbeir\Filesystem\FileEntity',
+        'normalizer' => []
     ];
 
     /**
@@ -244,7 +246,7 @@ class Filesystem implements EventDispatcherInterface
      */
     public function upload($file, array $config = []) : FileEntityInterface
     {
-        $filedata = new FileSourceNormalizer($file);
+        $filedata = new FileSourceNormalizer($file, $this->getConfig('normalizer'));
         $formatter = $this->newFormatter($filedata->filename, $config);
 
         $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'formatter'));
