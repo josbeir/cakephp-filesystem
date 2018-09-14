@@ -378,7 +378,7 @@ Currently the following events are implemented:
 
 ### Changing the hashing algorithm used in entities
 
-Options can be passed to the FileSourceNormalizer using the 'normalized' configuration option in the filesystem config
+Options can be passed to the FileSourceNormalizer using the 'normalizer' parameter in the filesystem instance config:
 
 ```php
 <?php
@@ -386,8 +386,7 @@ return [
     'Filesystem' => [
         'default' => [
             'adapter' => 'Local',
-            ..
-            ..
+            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],            
             'normalizer' => [
                 'hashingAlgo' => 'sha1'
             ]
