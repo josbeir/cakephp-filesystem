@@ -376,6 +376,28 @@ Currently the following events are implemented:
 
 ## Extras
 
+### Changing the hashing algorithm used in entities
+
+Options can be passed to the FileSourceNormalizer using the 'normalized' configuration option in the filesystem config
+
+```php
+<?php
+return [
+    'Filesystem' => [
+        'default' => [
+            'adapter' => 'Local',
+            ..
+            ..
+            'normalizer' => [
+                'hashingAlgo' => 'sha1'
+            ]
+        ]
+    ]
+]
+```
+
+### Accessing the Flysytem object
+
 Because this plugin is using flysystem at its core one could easily integrate with other flysystem compatible code.
 Accessing the flysystem directly can be done using ``Filesystem::getDisk()``.
 
