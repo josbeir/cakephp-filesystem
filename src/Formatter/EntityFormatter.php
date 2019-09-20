@@ -41,7 +41,7 @@ class EntityFormatter extends DefaultFormatter
         }
 
         $data = array_map(function ($item) {
-            return is_string($item) ? $this->safe($item) : $item;
+            return is_string($item) ? $this->safe($item) : null;
         }, $this->_data->toArray());
 
         $patterns = $data + $this->getConfig('replacements') + [
