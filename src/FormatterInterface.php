@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -21,12 +21,12 @@ interface FormatterInterface
      *
      * @return string
      */
-    public function getPath() : string;
+    public function getPath(): string;
 
     /**
      * Return the basename of current file
      *
      * @return string
      */
-    public function getBaseName() : string;
+    public function getBaseName(): string;
 }

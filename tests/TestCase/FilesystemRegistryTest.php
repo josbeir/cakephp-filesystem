@@ -8,7 +8,7 @@ use Josbeir\Filesystem\FilesystemRegistry;
 
 class FilesystemRegistryTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
     }
@@ -32,7 +32,7 @@ class FilesystemRegistryTest extends TestCase
     public function testAdd()
     {
         $testadapter = new Filesystem([
-            'adapter' => 'TestAdapter'
+            'adapter' => 'TestAdapter',
         ]);
 
         FilesystemRegistry::add('test', $testadapter);
@@ -56,7 +56,7 @@ class FilesystemRegistryTest extends TestCase
     public function testCustomConfig()
     {
         Configure::write('Filesystem.myfs', [
-            'formatter' => 'Entity'
+            'formatter' => 'Entity',
         ]);
 
         $fs = FilesystemRegistry::get('myfs');

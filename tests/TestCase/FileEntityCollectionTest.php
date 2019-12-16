@@ -62,7 +62,7 @@ class FileEntityCollectionTest extends TestCase
             'path' => uniqid() . '.ext',
             'hash' => uniqid(),
             'mime' => 'file/type',
-            'size' => 1337
+            'size' => 1337,
         ];
     }
 }

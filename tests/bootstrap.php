@@ -34,5 +34,5 @@ require $root . '/vendor/cakephp/cakephp/tests/bootstrap.php';
 
 Configure::write('Filesystem.default', [
     'adapter' => 'Local',
-    'adapterArguments' => [ __DIR__ . '/test_app/assets' ]
+    'adapterArguments' => [ __DIR__ . '/test_app/assets' ],
 ]);

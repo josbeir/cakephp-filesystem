@@ -1,9 +1,11 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem\Exception;
 
-class FileEntityException extends \Exception
+use Exception;
+
+class FileEntityException extends Exception
 {
     /**
      * Constructor

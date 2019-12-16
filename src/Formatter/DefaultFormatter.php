@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem\Formatter;
 
@@ -21,7 +21,7 @@ class DefaultFormatter implements FormatterInterface
      * @var array
      */
     protected $_defaultConfig = [
-        'folder' => null
+        'folder' => null,
     ];
 
     /**
@@ -52,7 +52,7 @@ class DefaultFormatter implements FormatterInterface
     /**
      * {@inheritDoc}
      */
-    public function getBaseName() : string
+    public function getBaseName(): string
     {
         return $this->safe($this->_info['basename']);
     }
@@ -62,7 +62,7 @@ class DefaultFormatter implements FormatterInterface
      *
      * @return string
      */
-    public function getExtension() : string
+    public function getExtension(): string
     {
         return $this->_info['extension'];
     }
@@ -72,7 +72,7 @@ class DefaultFormatter implements FormatterInterface
      *
      * @return string
      */
-    public function getFileName() : string
+    public function getFileName(): string
     {
         return $this->safe($this->_info['filename']);
     }
@@ -80,7 +80,7 @@ class DefaultFormatter implements FormatterInterface
     /**
      * {@inheritDoc}
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         $folder = $this->getConfig('folder') ? $this->getConfig('folder') . DS : null;
 
@@ -94,7 +94,7 @@ class DefaultFormatter implements FormatterInterface
      *
      * @return string
      */
-    public function safe(string $value) : string
+    public function safe(string $value): string
     {
         return preg_replace("/(?:[^\w\.-]+)/", '_', $value);
     }

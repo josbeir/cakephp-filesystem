@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -13,7 +13,7 @@ class FilesystemUtils
      *
      * @return array
      */
-    public static function normalizeFilesArray(array $files) : array
+    public static function normalizeFilesArray(array $files): array
     {
         $output = [];
         $fileCount = count($files['name']);

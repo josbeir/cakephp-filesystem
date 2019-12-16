@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -53,7 +53,7 @@ class Filesystem implements EventDispatcherInterface
         'adapter' => '\League\Flysystem\Adapter\Local',
         'adapterArguments' => [ WWW_ROOT . 'files' ],
         'filesystemArguments' => [
-            'visibility' => 'public'
+            'visibility' => 'public',
         ],
         'filesystemPlugins' => [
             '\League\Flysystem\Plugin\ForcedRename',
@@ -61,7 +61,7 @@ class Filesystem implements EventDispatcherInterface
         ],
         'formatter' => 'Default',
         'entityClass' => 'Josbeir\Filesystem\FileEntity',
-        'normalizer' => []
+        'normalizer' => [],
     ];
 
     /**
@@ -102,7 +102,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter) : self
+    public function setAdapter(AdapterInterface $adapter): self
     {
         $this->_adapter = $adapter;
 
@@ -116,7 +116,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return AdapterInterface
      */
-    public function getAdapter() : AdapterInterface
+    public function getAdapter(): AdapterInterface
     {
         if ($this->_adapter === null) {
             $adapter = $this->getConfig('adapter');
@@ -142,7 +142,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return \League\Flysystem\Filesystem
      */
-    public function getDisk() : FlysystemDisk
+    public function getDisk(): FlysystemDisk
     {
         if ($this->_disk === null) {
             $this->_disk = new FlysystemDisk(
@@ -151,7 +151,7 @@ class Filesystem implements EventDispatcherInterface
             );
 
             foreach ($this->getConfig('filesystemPlugins') as $plugin) {
-                $this->_disk->addPlugin(new $plugin);
+                $this->_disk->addPlugin(new $plugin());
             }
         }
 
@@ -166,7 +166,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return $this
      */
-    public function setFormatter($formatter, array $config = []) : self
+    public function setFormatter($formatter, array $config = []): self
     {
         $this->_formatter = $this->getFormatterClass($formatter);
 
@@ -182,11 +182,11 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return \Josbeir\Filesystem\FormatterInterface
      */
-    public function newFormatter($filename, array $config = []) : FormatterInterface
+    public function newFormatter($filename, array $config = []): FormatterInterface
     {
         $config = $config + [
             'formatter' => null,
-            'data' => null
+            'data' => null,
         ];
 
         if (isset($config['formatter'])) {
@@ -212,7 +212,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return string
      */
-    public function getFormatterClass($name = null) : string
+    public function getFormatterClass($name = null): string
     {
         $formatter = $name;
         if ($formatter === null) {
@@ -244,7 +244,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
      */
-    public function upload($file, array $config = []) : FileEntityInterface
+    public function upload($file, array $config = []): FileEntityInterface
     {
         $filedata = new FileSourceNormalizer($file, $this->getConfig('normalizer'));
         $formatter = $this->newFormatter($filedata->filename, $config);
@@ -274,7 +274,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return \Josbeir\Filesystem\FileEntityCollection List of files uploaded
      */
-    public function uploadMany(array $data, array $config = []) : FileEntityCollection
+    public function uploadMany(array $data, array $config = []): FileEntityCollection
     {
         if (!empty($data['tmp_name'][0])) {
             $data = FilesystemUtils::normalizeFilesArray($data);
@@ -295,7 +295,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return \Josbeir\Filesystem\FileEntityInterface
      */
-    public function newEntity(array $data) : FileEntityInterface
+    public function newEntity(array $data): FileEntityInterface
     {
         $entityClass = $this->getConfig('entityClass');
         $entity = new $entityClass($data);
@@ -310,7 +310,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return bool
      */
-    public function exists(FileEntityInterface $entity) : bool
+    public function exists(FileEntityInterface $entity): bool
     {
         return $this->getDisk()->has($entity->getPath());
     }
@@ -412,7 +412,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return $this
      */
-    public function reset() : self
+    public function reset(): self
     {
         $this->_formatter = null;
         $this->_adapter = null;

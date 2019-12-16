@@ -15,13 +15,13 @@ class FilesystemTest extends TestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
         $this->testFile = dirname(__DIR__) . '/test_app/dummy.png';
         $this->manager = new Filesystem([
-            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ]
+            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ],
         ]);
 
         $this->manager->getEventManager()->setEventList(new EventList());
@@ -32,7 +32,7 @@ class FilesystemTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         exec('rm -rf ' . dirname(__DIR__) . '/test_app/assets/*');
 
@@ -49,7 +49,7 @@ class FilesystemTest extends TestCase
      */
     public function testDefaultAdapter()
     {
-        $manager = new Filesystem;
+        $manager = new Filesystem();
 
         $this->assertInstanceOf('League\Flysystem\Filesystem', $manager->getDisk());
         $this->assertInstanceOf('League\Flysystem\Adapter\Local', $manager->getAdapter());
@@ -64,15 +64,15 @@ class FilesystemTest extends TestCase
     public function testGetAdapter()
     {
         $shortNameAdapter = new Filesystem([
-            'adapter' => 'NullAdapter'
+            'adapter' => 'NullAdapter',
         ]);
 
         $fqcNameAdapter = new Filesystem([
-            'adapter' => '\League\Flysystem\Adapter\NullAdapter'
+            'adapter' => '\League\Flysystem\Adapter\NullAdapter',
         ]);
 
         $unexistingAdapterFs = new Filesystem([
-            'adapter' => 'UnexistingAdapter'
+            'adapter' => 'UnexistingAdapter',
         ]);
 
         $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $shortNameAdapter->getAdapter());
@@ -160,8 +160,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
@@ -184,7 +184,7 @@ class FilesystemTest extends TestCase
             'tmp_name' => $this->testFile,
             'error' => UPLOAD_ERR_OK,
             'size' => 1337,
-            'type' => 'image/png'
+            'type' => 'image/png',
         ];
 
         $entity = $this->manager->upload($uploadArray);
@@ -209,7 +209,7 @@ class FilesystemTest extends TestCase
                 'tmp_name' => $this->testFile,
                 'error' => UPLOAD_ERR_OK,
                 'size' => 1337,
-                'type' => 'image/png'
+                'type' => 'image/png',
             ];
         }
 
@@ -233,7 +233,7 @@ class FilesystemTest extends TestCase
             'tmp_name' => $this->testFile,
             'error' => UPLOAD_ERR_OK,
             'size' => 1337,
-            'type' => 'image/png'
+            'type' => 'image/png',
         ];
 
         $uploadsArray = [];
@@ -278,7 +278,7 @@ class FilesystemTest extends TestCase
     {
         $entity = new Entity([
             'id' => 'cool-id',
-            'name' => 'myimage'
+            'name' => 'myimage',
         ], [ 'source' => 'articles' ]);
 
         $formatter = $this->manager
@@ -309,7 +309,7 @@ class FilesystemTest extends TestCase
     {
         $entity = new Entity([
             'id' => 'cool-id',
-            'name' => 'hello world this is cool'
+            'name' => 'hello world this is cool',
         ], [ 'source' => 'articles' ]);
 
         $path = $this->manager
@@ -420,7 +420,7 @@ class FilesystemTest extends TestCase
 
         $copied = $this->manager->newEntity([
             'path' => 'dummy2.png',
-            'filename' => 'dummy2.png'
+            'filename' => 'dummy2.png',
         ]);
 
         $this->manager->rename($copied, 'dummy.png', true);
@@ -442,8 +442,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $this->assertEquals('articles/dummy.png', $entity->getPath());
@@ -478,8 +478,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $this->assertEquals('articles/dummy.png', $copy->path);
@@ -578,7 +578,7 @@ class FilesystemTest extends TestCase
     public function testDeleteUnexisting()
     {
         $file = $this->manager->newEntity([
-            'path' => 'idontexist.gif'
+            'path' => 'idontexist.gif',
         ]);
 
         $this->assertFalse($this->manager->delete($file));
