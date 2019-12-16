@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=7.1",
-        "cakephp/cakephp": "^3.6",
+        "cakephp/cakephp": "^3.6|4.x-dev",
         "league/flysystem": "^1.0"
     },
     "require-dev": {
