@@ -264,7 +264,6 @@ class Filesystem implements EventDispatcherInterface
             'mime' => $this->getDisk()->getMimetype($formatter->getPath()),
             'hash' => $fileData->hash,
         ]);
-        debug($entity);
 
         $this->dispatchEvent('Filesystem.afterUpload', compact('entity'));
 
