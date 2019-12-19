@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem\Formatter;
 
@@ -22,7 +22,7 @@ class EntityFormatter extends DefaultFormatter
      */
     protected $_defaultConfig = [
         'pattern' => '{entity-source}/{file-name}.{file-ext}',
-        'replacements' => []
+        'replacements' => [],
     ];
 
     /**
@@ -32,7 +32,7 @@ class EntityFormatter extends DefaultFormatter
      *
      * @return string
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         if (!$this->_data instanceof EntityInterface) {
             throw new InvalidArgumentException(
@@ -51,12 +51,12 @@ class EntityFormatter extends DefaultFormatter
             'file-ext' => $this->getExtension(),
             'date-y' => date('Y'),
             'date-m' => date('m'),
-            'date-d' => date('d')
+            'date-d' => date('d'),
         ];
 
         $path = Text::insert($this->getConfig('pattern'), $patterns, [
             'before' => '{',
-            'after' => '}'
+            'after' => '}',
         ]);
 
         return $path;

@@ -1,14 +1,13 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
 use ArrayObject;
 use Cake\I18n\Time;
 use Cake\Utility\Text;
+use InvalidArgumentException;
 use Josbeir\Filesystem\Exception\FileEntityException;
-use Josbeir\Filesystem\FileEntityInterface;
-use \InvalidArgumentException;
 
 /**
  * Representation of a file entity
@@ -28,7 +27,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
         'hash',
         'size',
         'created',
-        'meta'
+        'meta',
     ];
 
     /**
@@ -121,7 +120,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @return self
      */
-    public function set($field, $value) : self
+    public function set($field, $value): self
     {
         $this->{$field} = $value;
 
@@ -136,7 +135,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @return bool
      */
-    public function has($field, $value) : bool
+    public function has($field, $value): bool
     {
         return $this->{$field} == $value;
     }
@@ -144,7 +143,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
-    public function getPath() : string
+    public function getPath(): string
     {
         return $this->get('path');
     }
@@ -152,7 +151,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
-    public function setPath(string $path) : FileEntityInterface
+    public function setPath(string $path): FileEntityInterface
     {
         return $this->set('path', $path);
     }
@@ -160,7 +159,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return $this->getArrayCopy();
     }
@@ -168,7 +167,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
-    public function jsonSerialize() : array
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }
@@ -176,7 +175,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     /**
      * {@inheritDoc}
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->get('path');
     }
@@ -188,7 +187,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @return array
      */
-    public function __debugInfo() : array
+    public function __debugInfo(): array
     {
          return $this->toArray();
     }

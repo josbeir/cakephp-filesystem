@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -38,11 +38,11 @@ class FilesystemRegistry
      *
      * @param string $name Configuration key identifier
      *
-     * @throws App\Filesystem\Exception\FilesystemException When configuration is not defined
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException When configuration is not defined
      *
      * @return Filesystem
      */
-    public static function get(string $name = null) : Filesystem
+    public static function get(string $name = null): Filesystem
     {
         $name = $name ?: self::CONFIG_DEFAULT;
 
@@ -66,7 +66,7 @@ class FilesystemRegistry
      *
      * @return void
      */
-    public static function add(string $name, Filesystem $filesystem) : void
+    public static function add(string $name, Filesystem $filesystem): void
     {
         static::$_filesystems[$name] = $filesystem;
     }
@@ -77,7 +77,7 @@ class FilesystemRegistry
      * @param string $name Configuration key identifier
      * @return bool
      */
-    public static function exists(string $name) : bool
+    public static function exists(string $name): bool
     {
         return isset(static::$_filesystems[$name]);
     }
@@ -87,7 +87,7 @@ class FilesystemRegistry
      *
      * @return void
      */
-    public static function reset() : void
+    public static function reset(): void
     {
         static::$_filesystems = [];
     }
