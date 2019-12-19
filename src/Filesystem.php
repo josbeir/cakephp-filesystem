@@ -14,6 +14,7 @@ use Josbeir\Filesystem\FileSourceNormalizer;
 use Josbeir\Filesystem\FilesystemUtils;
 use Josbeir\Filesystem\FormatterInterface;
 use League\Flysystem\AdapterInterface;
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem as FlysystemDisk;
 
 /**
@@ -243,23 +244,27 @@ class Filesystem implements EventDispatcherInterface
      * *All other options are passed to the formatter configuration instance*
      *
      * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
+     * @throws \League\Flysystem\FileNotFoundException When file missing.
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
      */
     public function upload($file, array $config = []): FileEntityInterface
     {
-        $filedata = new FileSourceNormalizer($file, $this->getConfig('normalizer'));
-        $formatter = $this->newFormatter($filedata->filename, $config);
+        $fileData = new FileSourceNormalizer($file, $this->getConfig('normalizer'));
+        $formatter = $this->newFormatter($fileData->filename, $config);
 
-        $this->dispatchEvent('Filesystem.beforeUpload', compact('filedata', 'formatter'));
+        $this->dispatchEvent('Filesystem.beforeUpload', compact('fileData', 'formatter'));
 
-        $this->getDisk()->putStream($formatter->getPath(), $filedata->resource);
+        $this->getDisk()->putStream($formatter->getPath(), $fileData->resource);
 
         $entity = $this->newEntity([
             'path' => $formatter->getPath(),
             'filename' => $formatter->getBaseName(),
             'size' => $this->getDisk()->getSize($formatter->getPath()),
             'mime' => $this->getDisk()->getMimetype($formatter->getPath()),
-            'hash' => $filedata->hash,
+            'hash' => $fileData->hash,
         ]);
+        debug($entity);
 
         $this->dispatchEvent('Filesystem.afterUpload', compact('entity'));
 
@@ -273,6 +278,9 @@ class Filesystem implements EventDispatcherInterface
      * @param array $config Formatter Arguments
      *
      * @return \Josbeir\Filesystem\FileEntityCollection List of files uploaded
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function uploadMany(array $data, array $config = []): FileEntityCollection
     {
@@ -298,9 +306,8 @@ class Filesystem implements EventDispatcherInterface
     public function newEntity(array $data): FileEntityInterface
     {
         $entityClass = $this->getConfig('entityClass');
-        $entity = new $entityClass($data);
 
-        return $entity;
+        return new $entityClass($data);
     }
 
     /**
@@ -318,9 +325,11 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Convenience method for FilesystemInterface::delete
      *
-     * @param \Josbeir\Filesystem\FileEntity $entity File enttity class
+     * @param \Josbeir\Filesystem\FileEntityInterface $entity File entity class
      *
      * @return bool
+     *
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function delete(FileEntityInterface $entity)
     {

@@ -38,7 +38,7 @@ class FilesystemRegistry
      *
      * @param string $name Configuration key identifier
      *
-     * @throws App\Filesystem\Exception\FilesystemException When configuration is not defined
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException When configuration is not defined
      *
      * @return Filesystem
      */
