@@ -15,7 +15,7 @@ use Traversable;
 /**
  * Collection class that holds file entities
  */
-class FileEntityCollection extends IteratorIterator implements CollectionInterface
+final class FileEntityCollection extends IteratorIterator implements CollectionInterface
 {
     use CollectionTrait;
 

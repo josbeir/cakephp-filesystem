@@ -35,7 +35,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @param array $data file data
      *
-     * @throws Josbeir\Filesystem\Exception\FileEntityException When constructor data doesnt match expected data in $_data
+     * @throws \Josbeir\Filesystem\Exception\FileEntityException When constructor data doesnt match expected data in $_data
      *
      * @return void
      */
