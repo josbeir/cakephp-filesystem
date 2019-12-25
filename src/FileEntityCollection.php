@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -48,7 +48,7 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
      * @param string $filesystem Filesystem name, used to generate the correct entity
      * @return self
      */
-    public static function createFromArray(array $entities, string $filesystem = null) : self
+    public static function createFromArray(array $entities, string $filesystem = null): self
     {
         foreach ($entities as &$entity) {
             if (!$entity instanceof FileEntityInterface) {
@@ -80,7 +80,7 @@ class FileEntityCollection extends IteratorIterator implements CollectionInterfa
     public function __debugInfo()
     {
         return [
-            'count' => $this->count()
+            'count' => $this->count(),
         ];
     }
 }

@@ -7,18 +7,18 @@ use Josbeir\Filesystem\Filesystem;
 
 class FileEntityTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
         $this->manager = new Filesystem([
-            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ]
+            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ],
         ]);
 
         $this->file = $this->manager->upload(dirname(__DIR__) . '/test_app/dummy.png');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         exec('rm -rf ' . dirname(__DIR__) . '/test_app/assets/*');
         unset($this->file);
@@ -43,7 +43,7 @@ class FileEntityTest extends TestCase
         $entity = new FileEntity([
             'this' => 'is',
             'not' => 'a',
-            'good' => 'constructor'
+            'good' => 'constructor',
         ]);
     }
 
@@ -68,9 +68,9 @@ class FileEntityTest extends TestCase
 
         $this->assertInstanceOf('Cake\i18n\Time', $this->file->created);
 
-        $this->assertInternalType('string', $this->file->getUuid(), 'UUID not a string');
-        $this->assertInternalType('int', $this->file->getSize(), 'Size not an integer');
-        $this->assertInternalType('array', $this->file->toArray());
+        $this->assertIsString($this->file->getUuid(), 'UUID not a string');
+        $this->assertIsInt($this->file->getSize(), 'Size not an integer');
+        $this->assertIsArray($this->file->toArray());
     }
 
     public function testSetters()

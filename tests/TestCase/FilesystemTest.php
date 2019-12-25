@@ -11,17 +11,27 @@ use Zend\Diactoros\UploadedFile;
 class FilesystemTest extends TestCase
 {
     /**
+     * @var \Josbeir\Filesystem\Filesystem FileSystem Manager
+     */
+    private $manager;
+
+    /**
+     * @var string Path Variable
+     */
+    private $testFile;
+
+    /**
      * Setup
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
         $this->testFile = dirname(__DIR__) . '/test_app/dummy.png';
         $this->manager = new Filesystem([
-            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ]
+            'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ],
         ]);
 
         $this->manager->getEventManager()->setEventList(new EventList());
@@ -32,7 +42,7 @@ class FilesystemTest extends TestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         exec('rm -rf ' . dirname(__DIR__) . '/test_app/assets/*');
 
@@ -49,7 +59,7 @@ class FilesystemTest extends TestCase
      */
     public function testDefaultAdapter()
     {
-        $manager = new Filesystem;
+        $manager = new Filesystem();
 
         $this->assertInstanceOf('League\Flysystem\Filesystem', $manager->getDisk());
         $this->assertInstanceOf('League\Flysystem\Adapter\Local', $manager->getAdapter());
@@ -64,15 +74,15 @@ class FilesystemTest extends TestCase
     public function testGetAdapter()
     {
         $shortNameAdapter = new Filesystem([
-            'adapter' => 'NullAdapter'
+            'adapter' => 'NullAdapter',
         ]);
 
         $fqcNameAdapter = new Filesystem([
-            'adapter' => '\League\Flysystem\Adapter\NullAdapter'
+            'adapter' => '\League\Flysystem\Adapter\NullAdapter',
         ]);
 
         $unexistingAdapterFs = new Filesystem([
-            'adapter' => 'UnexistingAdapter'
+            'adapter' => 'UnexistingAdapter',
         ]);
 
         $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $shortNameAdapter->getAdapter());
@@ -100,16 +110,20 @@ class FilesystemTest extends TestCase
      * Test "uploads" using plain paths
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testPathUpload()
     {
         $entity = $this->manager->upload($this->testFile);
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
+        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
 
         $this->assertTrue(file_exists($dest));
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
 
         $this->assertEventFired('Filesystem.beforeUpload', $this->manager->getEventManager());
+        $manager = $this->manager->getEventManager();
         $this->assertEventFiredWith('Filesystem.afterUpload', 'entity', $entity, $this->manager->getEventManager());
     }
 
@@ -117,6 +131,9 @@ class FilesystemTest extends TestCase
      * Test upload events
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testUploadEvents()
     {
@@ -141,6 +158,9 @@ class FilesystemTest extends TestCase
      * Test invalid upload
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testInvalidUpload()
     {
@@ -153,6 +173,9 @@ class FilesystemTest extends TestCase
      * Test upload with entity formatter
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testUploadEntityFormatter()
     {
@@ -160,8 +183,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
@@ -176,6 +199,9 @@ class FilesystemTest extends TestCase
      * Test files upload using $_FILES format
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testFilesUpload()
     {
@@ -184,7 +210,7 @@ class FilesystemTest extends TestCase
             'tmp_name' => $this->testFile,
             'error' => UPLOAD_ERR_OK,
             'size' => 1337,
-            'type' => 'image/png'
+            'type' => 'image/png',
         ];
 
         $entity = $this->manager->upload($uploadArray);
@@ -199,6 +225,9 @@ class FilesystemTest extends TestCase
      * Test uplaodMany using normalied files array
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testuploadMany()
     {
@@ -209,7 +238,7 @@ class FilesystemTest extends TestCase
                 'tmp_name' => $this->testFile,
                 'error' => UPLOAD_ERR_OK,
                 'size' => 1337,
-                'type' => 'image/png'
+                'type' => 'image/png',
             ];
         }
 
@@ -222,9 +251,13 @@ class FilesystemTest extends TestCase
 
     /**
      * Test uplaodMany using denormalized php's $_FILES array
+     *
      * @link http://php.net/manual/en/features.file-upload.multiple.php
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testuploadManyDenormalized()
     {
@@ -233,7 +266,7 @@ class FilesystemTest extends TestCase
             'tmp_name' => $this->testFile,
             'error' => UPLOAD_ERR_OK,
             'size' => 1337,
-            'type' => 'image/png'
+            'type' => 'image/png',
         ];
 
         $uploadsArray = [];
@@ -278,7 +311,7 @@ class FilesystemTest extends TestCase
     {
         $entity = new Entity([
             'id' => 'cool-id',
-            'name' => 'myimage'
+            'name' => 'myimage',
         ], [ 'source' => 'articles' ]);
 
         $formatter = $this->manager
@@ -309,7 +342,7 @@ class FilesystemTest extends TestCase
     {
         $entity = new Entity([
             'id' => 'cool-id',
-            'name' => 'hello world this is cool'
+            'name' => 'hello world this is cool',
         ], [ 'source' => 'articles' ]);
 
         $path = $this->manager
@@ -338,6 +371,9 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testRename()
     {
@@ -361,6 +397,9 @@ class FilesystemTest extends TestCase
      * Test rename events
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testRenameEvents()
     {
@@ -389,6 +428,9 @@ class FilesystemTest extends TestCase
      * Test rename abort event
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testRenameEventAbort()
     {
@@ -412,6 +454,10 @@ class FilesystemTest extends TestCase
      * Without the force option this operation would throw a FileExistsException
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileExistsException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testForcedRename()
     {
@@ -420,7 +466,7 @@ class FilesystemTest extends TestCase
 
         $copied = $this->manager->newEntity([
             'path' => 'dummy2.png',
-            'filename' => 'dummy2.png'
+            'filename' => 'dummy2.png',
         ]);
 
         $this->manager->rename($copied, 'dummy.png', true);
@@ -431,6 +477,9 @@ class FilesystemTest extends TestCase
      * Test rename a file based on formatter configuration
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testRenameWithFormatter()
     {
@@ -442,8 +491,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $this->assertEquals('articles/dummy.png', $entity->getPath());
@@ -453,6 +502,9 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testCopy()
     {
@@ -470,6 +522,9 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testCopyWithFormatter()
     {
@@ -478,8 +533,8 @@ class FilesystemTest extends TestCase
             'formatter' => 'Entity',
             'data' => new Entity([
                 'id' => 'cool-id',
-                'name' => 'myimage'
-            ], [ 'source' => 'articles' ])
+                'name' => 'myimage',
+            ], [ 'source' => 'articles' ]),
         ]);
 
         $this->assertEquals('articles/dummy.png', $copy->path);
@@ -491,6 +546,9 @@ class FilesystemTest extends TestCase
      * Without the force option this operation would throw a FileExistsException
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testForcedCopy()
     {
@@ -527,6 +585,9 @@ class FilesystemTest extends TestCase
      * Test copy events
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testCopyEvents()
     {
@@ -557,6 +618,9 @@ class FilesystemTest extends TestCase
      * Test delete a file
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testDelete()
     {
@@ -574,11 +638,13 @@ class FilesystemTest extends TestCase
      * Test deletion of unexisting file
      *
      * @return void
+     *
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testDeleteUnexisting()
     {
         $file = $this->manager->newEntity([
-            'path' => 'idontexist.gif'
+            'path' => 'idontexist.gif',
         ]);
 
         $this->assertFalse($this->manager->delete($file));
@@ -588,6 +654,9 @@ class FilesystemTest extends TestCase
      * Test delete events
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testDeleteEvents()
     {
@@ -613,6 +682,9 @@ class FilesystemTest extends TestCase
      * Test delete abort event
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testDeleteEventsAbort()
     {
@@ -648,6 +720,9 @@ class FilesystemTest extends TestCase
      * Test __call
      *
      * @return void
+     *
+     * @throws \Josbeir\Filesystem\Exception\FilesystemException
+     * @throws \League\Flysystem\FileNotFoundException
      */
     public function testCallProxy()
     {

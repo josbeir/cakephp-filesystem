@@ -5,3 +5,7 @@
 /tmp
 /coverage
 /clover.xml
+
+/.phpunit.result.cache
+
+/.idea

@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -12,7 +12,7 @@ interface FileEntityInterface extends JsonSerializable
      *
      * @return string
      */
-    public function getPath() : string;
+    public function getPath(): string;
 
     /**
      * Return the file entity path
@@ -21,7 +21,7 @@ interface FileEntityInterface extends JsonSerializable
      *
      * @return self
      */
-    public function setPath(string $path) : self;
+    public function setPath(string $path): self;
 
     /**
      * Get file data as array

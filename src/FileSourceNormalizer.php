@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Josbeir\Filesystem;
 
@@ -17,7 +17,7 @@ class FileSourceNormalizer
 
     protected $_defaultConfig = [
         'hashingAlgo' => 'md5',
-        'fallbackFilename' => 'untitled'
+        'fallbackFilename' => 'untitled',
     ];
 
     /**
@@ -86,7 +86,7 @@ class FileSourceNormalizer
      *
      * @return void
      */
-    protected function _handleUploadedFile(UploadedFile $uploadedFile) : void
+    protected function _handleUploadedFile(UploadedFile $uploadedFile): void
     {
         $stream = $uploadedFile->getStream();
         $hash = hash($this->getConfig('hashingAlgo'), (string)$stream); // should do some benchmarks on this
@@ -104,7 +104,7 @@ class FileSourceNormalizer
      *
      * @return void
      */
-    protected function _handleFilesUpload(array $file) : void
+    protected function _handleFilesUpload(array $file): void
     {
         $this->filename = empty($file['name']) ? $this->getConfig('fallbackFilename') : $file['name'];
         $this->resource = fopen($file['tmp_name'], 'r+');
@@ -119,7 +119,7 @@ class FileSourceNormalizer
      *
      * @return void
      */
-    protected function _handlePathUploads(string $path) : void
+    protected function _handlePathUploads(string $path): void
     {
         $file = new File($path);
 
@@ -146,7 +146,7 @@ class FileSourceNormalizer
      *
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->filename;
     }
