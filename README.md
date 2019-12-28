@@ -36,8 +36,8 @@ CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/do
 
 ## Requirements
 
-* CakePHP 3.6+
-* PHP 7.1
+* CakePHP 4.x
+* PHP 7.2
 
 ## Installation
 
