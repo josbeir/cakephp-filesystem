@@ -1,3 +1,3 @@
 parameters:
     tmpDir: 'tmp/cache/phpstan'
-    bootstrap: %rootDir%/../../../../tests/bootstrap.php
+    bootstrap: %rootDir%/../../../tests/bootstrap.php
