@@ -41,7 +41,15 @@ class EntityFormatter extends DefaultFormatter
         }
 
         $data = array_map(function ($item) {
-            return is_string($item) ? $this->safe($item) : null;
+            if (is_string($item)){
+                return $this->safe($item);
+            }
+            //Adding this in order to manage also integer values (es: node.id)
+            if (is_integer($item))
+            {
+                return strval($item);
+            }
+            return null;
         }, $this->_data->toArray());
 
         $patterns = $data + $this->getConfig('replacements') + [
