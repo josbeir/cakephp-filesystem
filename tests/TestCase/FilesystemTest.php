@@ -364,7 +364,7 @@ class FilesystemTest extends TestCase
     public function testEntityFormatterCustomPatternWithInt()
     {
         $entity = new Entity([
-            'id' => '1',
+            'id' => 1,
             'name' => 'hello world this is cool',
         ], [ 'source' => 'articles' ]);
 
