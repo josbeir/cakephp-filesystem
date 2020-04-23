@@ -357,6 +357,29 @@ class FilesystemTest extends TestCase
     }
 
     /**
+     * Test custom formatter patterns with integer
+     *
+     * @return void
+     */
+    public function testEntityFormatterCustomPatternWithInt()
+    {
+        $entity = new Entity([
+            'id' => '1',
+            'name' => 'hello world this is cool',
+        ], [ 'source' => 'articles' ]);
+
+        $path = $this->manager
+            ->setFormatter('Entity')
+            ->newFormatter('cool-image.png', [
+                'data' => $entity,
+                'pattern' => '{entity-source}/{id}/{name}.{file-ext}',
+            ])
+            ->getPath();
+
+        $this->assertSame('articles/1/hello_world_this_is_cool.png', $path);
+    }
+
+    /**
      * Test exception when invalid formatter is used
      *
      * @return void
