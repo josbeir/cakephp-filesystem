@@ -6,7 +6,7 @@ namespace Josbeir\Filesystem;
 use Cake\Core\InstanceConfigTrait;
 use Cake\Filesystem\File;
 use Josbeir\Filesystem\Exception\FilesystemException;
-use Zend\Diactoros\UploadedFile;
+use Laminas\Diactoros\UploadedFile;
 
 /**
  * Normalize different upload entry points to a headache free dataset
@@ -51,7 +51,7 @@ class FileSourceNormalizer
     /**
      * Constructor
      *
-     * @param string|array|\Zend\Diactoros\UploadedFile $uploadData Mixed upload data
+     * @param string|array|\Laminas\Diactoros\UploadedFile $uploadData Mixed upload data
      * @param array $config Config options
      *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException When after parsing no valid file resource could be detected
@@ -82,7 +82,7 @@ class FileSourceNormalizer
     /**
      * Handle UploadedFile
      *
-     * @param \Zend\Diactoros\UploadedFile $uploadedFile Instance of an UploadedFile
+     * @param \Laminas\Diactoros\UploadedFile $uploadedFile Instance of an UploadedFile
      *
      * @return void
      */

@@ -7,14 +7,12 @@ use Cake\Core\InstanceConfigTrait;
 use Cake\Event\EventDispatcherInterface;
 use Cake\Event\EventDispatcherTrait;
 use InvalidArgumentException;
-use Josbeir\Filesystem\Exception\FilesystemException;
 use Josbeir\Filesystem\FileEntityCollection;
 use Josbeir\Filesystem\FileEntityInterface;
 use Josbeir\Filesystem\FileSourceNormalizer;
 use Josbeir\Filesystem\FilesystemUtils;
 use Josbeir\Filesystem\FormatterInterface;
-use League\Flysystem\AdapterInterface;
-use League\Flysystem\FileNotFoundException;
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Filesystem as FlysystemDisk;
 
 /**
@@ -51,14 +49,10 @@ class Filesystem implements EventDispatcherInterface
      * `normalizer` => Options passed to the FileSourceNormalizer class
      */
     protected $_defaultConfig = [
-        'adapter' => '\League\Flysystem\Adapter\Local',
+        'adapter' => 'League\Flysystem\Local\LocalFilesystemAdapter',
         'adapterArguments' => [ WWW_ROOT . 'files' ],
         'filesystemArguments' => [
             'visibility' => 'public',
-        ],
-        'filesystemPlugins' => [
-            '\League\Flysystem\Plugin\ForcedRename',
-            '\League\Flysystem\Plugin\ForcedCopy',
         ],
         'formatter' => 'Default',
         'entityClass' => 'Josbeir\Filesystem\FileEntity',
@@ -68,7 +62,7 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Holds instance of the flysystem adapter
      *
-     * @var \League\Flysystem\AdapterInterface|null
+     * @var \League\Flysystem\FilesystemAdapter|null
      */
     protected $_adapter;
 
@@ -99,11 +93,11 @@ class Filesystem implements EventDispatcherInterface
 
     /**
      * Set the adapter interface
-     * @param \League\Flysystem\AdapterInterface $adapter Adapter interface
+     * @param \League\Flysystem\FilesystemAdapter $adapter Adapter interface
      *
      * @return $this
      */
-    public function setAdapter(AdapterInterface $adapter): self
+    public function setAdapter(FilesystemAdapter $adapter): self
     {
         $this->_adapter = $adapter;
 
@@ -115,16 +109,12 @@ class Filesystem implements EventDispatcherInterface
      *
      * @throws \InvalidArgumentException When adapter could not be located
      *
-     * @return AdapterInterface
+     * @return \League\Flysystem\FilesystemAdapter
      */
-    public function getAdapter(): AdapterInterface
+    public function getAdapter(): FilesystemAdapter
     {
         if ($this->_adapter === null) {
             $adapter = $this->getConfig('adapter');
-
-            if (!class_exists($adapter)) {
-                $adapter = '\\League\\Flysystem\\Adapter\\' . $adapter;
-            }
 
             if (!class_exists($adapter)) {
                 throw new InvalidArgumentException(sprintf('Adapter "%s" could not be loaded', $adapter));
@@ -148,12 +138,8 @@ class Filesystem implements EventDispatcherInterface
         if ($this->_disk === null) {
             $this->_disk = new FlysystemDisk(
                 $this->getAdapter(),
-                $this->getConfig('filesystem')
+                $this->getConfig('filesystemArguments')
             );
-
-            foreach ($this->getConfig('filesystemPlugins') as $plugin) {
-                $this->_disk->addPlugin(new $plugin());
-            }
         }
 
         return $this->_disk;
@@ -180,7 +166,6 @@ class Filesystem implements EventDispatcherInterface
      *
      * @param string $filename Original filename
      * @param array $config Configuration settings passed to formatter
-     *
      * @return \Josbeir\Filesystem\FormatterInterface
      */
     public function newFormatter($filename, array $config = []): FormatterInterface
@@ -244,8 +229,6 @@ class Filesystem implements EventDispatcherInterface
      * *All other options are passed to the formatter configuration instance*
      *
      * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
-     * @throws \League\Flysystem\FileNotFoundException When file missing.
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      */
     public function upload($file, array $config = []): FileEntityInterface
@@ -255,13 +238,13 @@ class Filesystem implements EventDispatcherInterface
 
         $this->dispatchEvent('Filesystem.beforeUpload', compact('fileData', 'formatter'));
 
-        $this->getDisk()->putStream($formatter->getPath(), $fileData->resource);
+        $this->getDisk()->writeStream($formatter->getPath(), $fileData->resource);
 
         $entity = $this->newEntity([
             'path' => $formatter->getPath(),
             'filename' => $formatter->getBaseName(),
-            'size' => $this->getDisk()->getSize($formatter->getPath()),
-            'mime' => $this->getDisk()->getMimetype($formatter->getPath()),
+            'size' => $this->getDisk()->fileSize($formatter->getPath()),
+            'mime' => $this->getDisk()->mimeType($formatter->getPath()),
             'hash' => $fileData->hash,
         ]);
 
@@ -275,11 +258,8 @@ class Filesystem implements EventDispatcherInterface
      *
      * @param array $data List of files to be uploaded
      * @param array $config Formatter Arguments
-     *
      * @return \Josbeir\Filesystem\FileEntityCollection List of files uploaded
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
-     * @throws \League\Flysystem\FileNotFoundException
      */
     public function uploadMany(array $data, array $config = []): FileEntityCollection
     {
@@ -299,7 +279,6 @@ class Filesystem implements EventDispatcherInterface
      * Build an entity
      *
      * @param array $data Entity data
-     *
      * @return \Josbeir\Filesystem\FileEntityInterface
      */
     public function newEntity(array $data): FileEntityInterface
@@ -313,22 +292,18 @@ class Filesystem implements EventDispatcherInterface
      * Convenience method for Filesystem::has
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
-     *
      * @return bool
      */
     public function exists(FileEntityInterface $entity): bool
     {
-        return $this->getDisk()->has($entity->getPath());
+        return $this->getDisk()->fileExists($entity->getPath());
     }
 
     /**
      * Convenience method for FilesystemInterface::delete
      *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File entity class
-     *
      * @return bool
-     *
-     * @throws \League\Flysystem\FileNotFoundException
      */
     public function delete(FileEntityInterface $entity)
     {
@@ -338,7 +313,8 @@ class Filesystem implements EventDispatcherInterface
             return $event->getResult();
         }
 
-        if ($this->exists($entity) && $this->getDisk()->delete($entity->getPath())) {
+        if ($this->exists($entity)) {
+            $this->getDisk()->delete($entity->getPath());
             $this->dispatchEvent('Filesystem.afterDelete', compact('entity'));
 
             return true;
@@ -352,15 +328,11 @@ class Filesystem implements EventDispatcherInterface
      * Will also update the internal path of the entity, please make sure that information is presisted afterwards if needed!
      * Returns modified entity on successfull rename.
      *
-     * Requires \League\Flysystem\Plugin\ForcedRename plugin to be loaded when using the 'force' method
-     *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
      * @param string|null|array $config Formatter configuration or new path to rename file to
-     * @param bool $force Uses ForcedRename (plugin) instead of standard rename
-     *
      * @return \Josbeir\Filesystem\FileEntityInterface
      */
-    public function rename(FileEntityInterface $entity, $config = null, bool $force = false)
+    public function rename(FileEntityInterface $entity, $config = null)
     {
         $newPath = $config;
         if (is_array($config)) {
@@ -372,8 +344,7 @@ class Filesystem implements EventDispatcherInterface
             return $event->getResult();
         }
 
-        $renameMethod = $force ? 'forceRename' : 'rename';
-        $this->getDisk()->{$renameMethod}($entity->getPath(), $newPath);
+        $this->getDisk()->move($entity->getPath(), $newPath);
         $entity->setPath($newPath);
         $this->dispatchEvent('Filesystem.afterRename', compact('entity'));
 
@@ -384,15 +355,11 @@ class Filesystem implements EventDispatcherInterface
      * Convenience method for Filesystem::copy
      * Will return a new entity based on the given one, with the new path present
      *
-     * Requires \League\Flysystem\Plugin\ForcedCopy plugin to be loaded when using the 'force' method
-     *
      * @param \Josbeir\Filesystem\FileEntityInterface $entity File enttity class
      * @param string|null|array $config Formatter configuration or new path to copy file to
-     * @param bool $force Uses ForcedCopy (plugin) instead of standard copy
-     *
      * @return \Josbeir\Filesystem\FileEntityInterface
      */
-    public function copy(FileEntityInterface $entity, $config = null, bool $force = false)
+    public function copy(FileEntityInterface $entity, $config = null)
     {
         $destination = $config;
         if (is_array($config)) {
@@ -404,8 +371,7 @@ class Filesystem implements EventDispatcherInterface
             return $event->getResult();
         }
 
-        $copyMethod = $force ? 'forceCopy' : 'copy';
-        $this->getDisk()->{$copyMethod}($entity->getPath(), $destination);
+        $this->getDisk()->copy($entity->getPath(), $destination);
 
         $copiedEntity = $this->newEntity($entity->toArray());
         $copiedEntity->setPath($destination);

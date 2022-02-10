@@ -32,7 +32,7 @@ class FileEntityTest extends TestCase
 
         $entity = new FileEntity($arrayData);
 
-        $this->assertInstanceOf('Cake\i18n\Time', $entity->getCreated());
+        $this->assertInstanceOf('Cake\i18n\FrozenTime', $entity->getCreated());
     }
 
     public function testBadConstructorParams()
@@ -66,7 +66,7 @@ class FileEntityTest extends TestCase
         $this->assertEquals($this->file->getHash(), '3ba92ed92481b4fc68842a2b3dcee525');
         $this->assertTrue($this->file->hasHash('3ba92ed92481b4fc68842a2b3dcee525'));
 
-        $this->assertInstanceOf('Cake\i18n\Time', $this->file->created);
+        $this->assertInstanceOf('Cake\i18n\FrozenTime', $this->file->created);
 
         $this->assertIsString($this->file->getUuid(), 'UUID not a string');
         $this->assertIsInt($this->file->getSize(), 'Size not an integer');

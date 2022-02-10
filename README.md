@@ -10,19 +10,28 @@ CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/do
 
 <!-- TOC -->
 
-- [Why](#why)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Simple upload example](#simple-upload-example)
-- [Entity properties](#entity-properties)
-- [Recreating entities](#recreating-entities)
-- [Using your own entities](#using-your-own-entities)
-- [Formatters](#formatters)
-- [Methods](#methods)
-- [Events](#events)
-- [Extras](#extras)
-- [Contribute](#contribute)
+- [Filesystem plugin for CakePHP](#filesystem-plugin-for-cakephp)
+  - [Why](#why)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Simple upload example](#simple-upload-example)
+    - [Result](#result)
+  - [Entity properties](#entity-properties)
+  - [Recreating entities](#recreating-entities)
+  - [Using your own entities](#using-your-own-entities)
+    - [Example on using Cake ORM entities instead of the built entity class](#example-on-using-cake-orm-entities-instead-of-the-built-entity-class)
+  - [Formatters](#formatters)
+    - [Setting up formatters](#setting-up-formatters)
+    - [Creating a custom formatter class](#creating-a-custom-formatter-class)
+      - [Example custom formatter](#example-custom-formatter)
+      - [Using the custom formatter class in your application](#using-the-custom-formatter-class-in-your-application)
+  - [Methods](#methods)
+  - [Events](#events)
+  - [Extras](#extras)
+    - [Changing the hashing algorithm used in entities](#changing-the-hashing-algorithm-used-in-entities)
+    - [Accessing the Flysytem object](#accessing-the-flysytem-object)
+  - [Contribute](#contribute)
 
 <!-- /TOC -->
 
@@ -329,11 +338,11 @@ $this->getFilesystem()->uploadMany($files, $config);
 
 // Copy an entity
 // Will fire Filesystem.beforeCopy and Filesystem.afterCopy
-$this->getFilesystem()->copy($entity, $config, $force);
+$this->getFilesystem()->copy($entity, $config);
 
 // Rename an entity
 // Will fire Filesystem.beforeRename and Filesystem.afterRename
-$this->getFilesystem()->rename($entity, $config, $force);
+$this->getFilesystem()->rename($entity, $config);
 
 // Delete an entity from the FS
 // Will fire Filesystem.beforeDelete and Filesystem.afterDelete
@@ -386,7 +395,7 @@ return [
     'Filesystem' => [
         'default' => [
             'adapter' => 'Local',
-            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],            
+            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],
             'normalizer' => [
                 'hashingAlgo' => 'sha1'
             ]

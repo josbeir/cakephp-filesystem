@@ -1,12 +1,12 @@
 <?php
 namespace Josbeir\Filesystem\Test\TestCase;
 
-use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Josbeir\Filesystem\Filesystem;
-use Zend\Diactoros\UploadedFile;
+use Laminas\Diactoros\UploadedFile;
+use League\Flysystem\PathPrefixer;
 
 class FilesystemTest extends TestCase
 {
@@ -21,6 +21,12 @@ class FilesystemTest extends TestCase
     private $testFile;
 
     /**
+     * Prefixer
+     * @var \League\Flysystem\PathPrefixer
+     */
+    private $prefixer;
+
+    /**
      * Setup
      *
      * @return void
@@ -33,6 +39,7 @@ class FilesystemTest extends TestCase
         $this->manager = new Filesystem([
             'adapterArguments' => [ dirname(__DIR__) . '/test_app/assets' ],
         ]);
+        $this->prefixer = new PathPrefixer(dirname(__DIR__) . '/test_app/assets', DS);
 
         $this->manager->getEventManager()->setEventList(new EventList());
     }
@@ -62,7 +69,7 @@ class FilesystemTest extends TestCase
         $manager = new Filesystem();
 
         $this->assertInstanceOf('League\Flysystem\Filesystem', $manager->getDisk());
-        $this->assertInstanceOf('League\Flysystem\Adapter\Local', $manager->getAdapter());
+        $this->assertInstanceOf('League\Flysystem\Local\LocalFilesystemAdapter', $manager->getAdapter());
         $this->assertEquals('\Josbeir\Filesystem\Formatter\DefaultFormatter', $manager->getFormatterClass());
     }
 
@@ -73,20 +80,15 @@ class FilesystemTest extends TestCase
      */
     public function testGetAdapter()
     {
-        $shortNameAdapter = new Filesystem([
-            'adapter' => 'NullAdapter',
-        ]);
-
         $fqcNameAdapter = new Filesystem([
-            'adapter' => '\League\Flysystem\Adapter\NullAdapter',
+            'adapter' => '\League\Flysystem\Local\LocalFilesystemAdapter',
         ]);
 
         $unexistingAdapterFs = new Filesystem([
             'adapter' => 'UnexistingAdapter',
         ]);
 
-        $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $shortNameAdapter->getAdapter());
-        $this->assertInstanceOf('League\Flysystem\Adapter\NullAdapter', $fqcNameAdapter->getAdapter());
+        $this->assertInstanceOf('League\Flysystem\Local\LocalFilesystemAdapter', $fqcNameAdapter->getAdapter());
 
         $this->expectException('\InvalidArgumentException');
         $unexistingAdapterFs->getAdapter();
@@ -99,11 +101,13 @@ class FilesystemTest extends TestCase
      */
     public function testSetAdapter()
     {
-        $adapter = $this->getMockBuilder('\League\Flysystem\Adapter\NullAdapter')->getMock();
+        $adapter = $this->getMockBuilder('\League\Flysystem\Local\LocalFilesystemAdapter')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->manager->setAdapter($adapter);
 
-        $this->assertInstanceOf('\League\Flysystem\Adapter\NullAdapter', $this->manager->getAdapter());
+        $this->assertInstanceOf('\League\Flysystem\Local\LocalFilesystemAdapter', $this->manager->getAdapter());
     }
 
     /**
@@ -117,7 +121,7 @@ class FilesystemTest extends TestCase
     public function testPathUpload()
     {
         $entity = $this->manager->upload($this->testFile);
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
+        $dest = $this->prefixer->prefixPath($entity->getPath());
 
         $this->assertTrue(file_exists($dest));
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
@@ -187,7 +191,7 @@ class FilesystemTest extends TestCase
             ], [ 'source' => 'articles' ]),
         ]);
 
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->getPath();
+        $dest = $this->prefixer->prefixPath($entity->getPath());
 
         $this->assertSame('articles/dummy.png', $entity->getPath());
         $this->assertSame('image/png', $entity->getMime());
@@ -214,7 +218,7 @@ class FilesystemTest extends TestCase
         ];
 
         $entity = $this->manager->upload($uploadArray);
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
+        $dest = $this->prefixer->prefixPath($entity->path);
 
         $this->assertFileExists($dest);
         $this->assertSame('image/png', $entity->getMime());
@@ -284,15 +288,15 @@ class FilesystemTest extends TestCase
     }
 
     /**
-     * Test file uploads using Zend\Diactoros\UploadedFile
+     * Test file uploads using \Laminas\Diactoros\UploadedFile
      */
     public function testUploadedFileUpload()
     {
-        $data = new UploadedFile(tmpfile(), 1337, UPLOAD_ERR_OK, 'dummy_test.png', 'image/png');
+        $data = new UploadedFile($this->testFile, filesize($this->testFile), UPLOAD_ERR_OK, 'dummy_test.png', 'image/png');
         $entity = $this->manager->upload($data);
 
         $this->assertSame('dummy_test.png', $entity->getPath());
-        $dest = $this->manager->getAdapter()->getPathPrefix() . $entity->path;
+        $dest = $this->prefixer->prefixPath($entity->path);
 
         $this->assertFileExists($dest);
         $this->assertInstanceOf('\Josbeir\Filesystem\FileEntity', $entity);
@@ -385,10 +389,6 @@ class FilesystemTest extends TestCase
         $this->assertEventFiredWith('Filesystem.beforeRename', 'entity', $entity, $this->manager->getEventManager());
         $this->assertEventFiredWith('Filesystem.afterRename', 'entity', $entity, $this->manager->getEventManager());
 
-        // try again, file should excist and exception should be thrown
-        $this->expectException('\League\Flysystem\FileExistsException');
-        $this->manager->rename($entity, 'dummy2.png');
-
         // now rename once again
         $this->manager->rename($entity, 'dummy.png');
     }
@@ -447,30 +447,6 @@ class FilesystemTest extends TestCase
         });
 
         $this->assertSame('hello!', $this->manager->rename($entity, 'dummy2.png'));
-    }
-
-    /**
-     * Upload a file, copy the file and rename it to the original file
-     * Without the force option this operation would throw a FileExistsException
-     *
-     * @return void
-     *
-     * @throws \Josbeir\Filesystem\Exception\FilesystemException
-     * @throws \League\Flysystem\FileExistsException
-     * @throws \League\Flysystem\FileNotFoundException
-     */
-    public function testForcedRename()
-    {
-        $entity = $this->manager->upload($this->testFile);
-        $this->manager->getDisk()->copy($entity->getPath(), 'dummy2.png');
-
-        $copied = $this->manager->newEntity([
-            'path' => 'dummy2.png',
-            'filename' => 'dummy2.png',
-        ]);
-
-        $this->manager->rename($copied, 'dummy.png', true);
-        $this->assertFileExists(dirname(__DIR__) . '/test_app/assets/dummy.png');
     }
 
     /**
@@ -539,24 +515,6 @@ class FilesystemTest extends TestCase
 
         $this->assertEquals('articles/dummy.png', $copy->path);
         $this->assertNotEquals($entity, $copy);
-    }
-
-    /**
-     * Upload a file, copy the file and rename it to the original file
-     * Without the force option this operation would throw a FileExistsException
-     *
-     * @return void
-     *
-     * @throws \Josbeir\Filesystem\Exception\FilesystemException
-     * @throws \League\Flysystem\FileNotFoundException
-     */
-    public function testForcedCopy()
-    {
-        $entity = $this->manager->upload($this->testFile);
-        $this->manager->copy($entity, 'dummy2.png');
-        $this->manager->copy($entity, 'dummy2.png', true);
-        $this->expectException('League\Flysystem\FileExistsException');
-        $this->manager->copy($entity, 'dummy2.png');
     }
 
     /**
@@ -727,8 +685,11 @@ class FilesystemTest extends TestCase
     public function testCallProxy()
     {
         $entity = $this->manager->upload($this->testFile);
-        $result = $this->manager->listContents();
+        $result = $this->manager->listContents('/');
 
-        $this->assertSame('dummy.png', $result[0]['path']);
+        foreach ($result as $file) {
+            /** @var \League\Flysystem\FileAttributes $file  */
+            $this->assertSame('dummy.png', $file->path());
+        }
     }
 }

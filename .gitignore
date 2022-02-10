@@ -1,4 +1,5 @@
-.vscode
+/.vscode
+/.ddev
 /composer.lock
 /phpunit.xml
 /vendor

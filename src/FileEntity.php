@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Josbeir\Filesystem;
 
 use ArrayObject;
-use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 use Cake\Utility\Text;
 use InvalidArgumentException;
 use Josbeir\Filesystem\Exception\FileEntityException;
@@ -54,11 +54,11 @@ class FileEntity extends ArrayObject implements FileEntityInterface
         }
 
         if (!$data['created']) {
-            $data['created'] = Time::now();
+            $data['created'] = FrozenTime::now();
         }
 
         if (is_string($data['created'])) {
-            $data['created'] = new Time($data['created']);
+            $data['created'] = new FrozenTime($data['created']);
         }
 
         parent::__construct($data, ArrayObject::ARRAY_AS_PROPS);
