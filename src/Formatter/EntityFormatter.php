@@ -4,10 +4,8 @@ declare(strict_types=1);
 namespace Josbeir\Filesystem\Formatter;
 
 use Cake\Datasource\EntityInterface;
-use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use InvalidArgumentException;
-use Josbeir\Filesystem\Formatter\DefaultFormatter;
 
 /**
  * Entity formatter, returns a path based on a given pattern
@@ -29,7 +27,6 @@ class EntityFormatter extends DefaultFormatter
      * (@inheritDoc)
      *
      * @throws \InvalidArgumentException
-     *
      * @return string
      */
     public function getPath(): string

@@ -11,7 +11,6 @@ interface FormatterInterface
      * @param string $filename Original filename
      * @param mixed $data Data passed
      * @param array $config Configuration options
-     *
      * @return void
      */
     public function __construct(string $filename, $data = null, array $config = []);

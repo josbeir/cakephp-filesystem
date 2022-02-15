@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace Josbeir\Filesystem;
 
 use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
-use Josbeir\Filesystem\Filesystem;
-use Josbeir\Filesystem\FilesystemRegistry;
 
 class FilesystemRegistryTest extends TestCase
 {

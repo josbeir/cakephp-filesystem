@@ -34,9 +34,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      * Setup the file entity
      *
      * @param array $data file data
-     *
      * @throws \Josbeir\Filesystem\Exception\FileEntityException When constructor data doesnt match expected data in $_data
-     *
      * @return void
      */
     public function __construct(array $data)
@@ -46,7 +44,12 @@ class FileEntity extends ArrayObject implements FileEntityInterface
 
         $diff = array_diff_key($data, $defaults);
         if (!empty($diff)) {
-            throw new FileEntityException(sprintf('FileEntity constructor data contains keys that are not allowed (%s)', implode(',', array_keys($diff))));
+            throw new FileEntityException(
+                sprintf(
+                    'FileEntity constructor data contains keys that are not allowed (%s)',
+                    implode(',', array_keys($diff))
+                )
+            );
         }
 
         if (!$data['uuid']) {
@@ -70,7 +73,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @param string $field Field name
      * @param array $arguments Arguments
-     *
      * @return mixed|bool|self
      */
     public function __call($field, $arguments)
@@ -104,7 +106,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      * Get an internal value
      *
      * @param string $field Field name
-     *
      * @return mixed
      */
     public function get($field)
@@ -117,7 +118,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @param string $field Field name
      * @param mixed $value Value to set
-     *
      * @return self
      */
     public function set($field, $value): self
@@ -132,7 +132,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      *
      * @param string $field Internal field name
      * @param mixed $value Value to compare with
-     *
      * @return bool
      */
     public function has($field, $value): bool
@@ -141,7 +140,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getPath(): string
     {
@@ -149,7 +148,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function setPath(string $path): FileEntityInterface
     {
@@ -157,7 +156,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function toArray(): array
     {
@@ -165,7 +164,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function jsonSerialize(): array
     {
@@ -173,7 +172,7 @@ class FileEntity extends ArrayObject implements FileEntityInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __toString(): string
     {
@@ -184,7 +183,6 @@ class FileEntity extends ArrayObject implements FileEntityInterface
      * Return properties for debugging.
      *
      * @codeCoverageIgnore
-     *
      * @return array
      */
     public function __debugInfo(): array

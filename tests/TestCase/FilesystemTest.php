@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Josbeir\Filesystem\Test\TestCase;
 
 use Cake\Event\EventList;
@@ -22,6 +24,7 @@ class FilesystemTest extends TestCase
 
     /**
      * Prefixer
+     *
      * @var \League\Flysystem\PathPrefixer
      */
     private $prefixer;
@@ -114,7 +117,6 @@ class FilesystemTest extends TestCase
      * Test "uploads" using plain paths
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -135,7 +137,6 @@ class FilesystemTest extends TestCase
      * Test upload events
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -162,7 +163,6 @@ class FilesystemTest extends TestCase
      * Test invalid upload
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -177,7 +177,6 @@ class FilesystemTest extends TestCase
      * Test upload with entity formatter
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -203,7 +202,6 @@ class FilesystemTest extends TestCase
      * Test files upload using $_FILES format
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -229,7 +227,6 @@ class FilesystemTest extends TestCase
      * Test uplaodMany using normalied files array
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -257,9 +254,7 @@ class FilesystemTest extends TestCase
      * Test uplaodMany using denormalized php's $_FILES array
      *
      * @link http://php.net/manual/en/features.file-upload.multiple.php
-     *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -375,7 +370,6 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -397,7 +391,6 @@ class FilesystemTest extends TestCase
      * Test rename events
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -428,7 +421,6 @@ class FilesystemTest extends TestCase
      * Test rename abort event
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -453,7 +445,6 @@ class FilesystemTest extends TestCase
      * Test rename a file based on formatter configuration
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -478,7 +469,6 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -498,7 +488,6 @@ class FilesystemTest extends TestCase
      * Upload and rename a file
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -543,7 +532,6 @@ class FilesystemTest extends TestCase
      * Test copy events
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -576,7 +564,6 @@ class FilesystemTest extends TestCase
      * Test delete a file
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -596,7 +583,6 @@ class FilesystemTest extends TestCase
      * Test deletion of unexisting file
      *
      * @return void
-     *
      * @throws \League\Flysystem\FileNotFoundException
      */
     public function testDeleteUnexisting()
@@ -612,7 +598,6 @@ class FilesystemTest extends TestCase
      * Test delete events
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -640,7 +625,6 @@ class FilesystemTest extends TestCase
      * Test delete abort event
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */
@@ -678,7 +662,6 @@ class FilesystemTest extends TestCase
      * Test __call
      *
      * @return void
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      * @throws \League\Flysystem\FileNotFoundException
      */

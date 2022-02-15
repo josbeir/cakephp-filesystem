@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use Cake\Core\Configure;
 
@@ -18,7 +19,7 @@ $findRoot = function ($root) {
         }
     } while ($root !== $lastRoot);
 
-    throw new Exception("Cannot find the root of the application, unable to run tests");
+    throw new Exception('Cannot find the root of the application, unable to run tests');
 };
 $root = $findRoot(__FILE__);
 unset($findRoot);

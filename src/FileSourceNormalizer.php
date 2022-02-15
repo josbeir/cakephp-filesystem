@@ -53,9 +53,7 @@ class FileSourceNormalizer
      *
      * @param string|array|\Laminas\Diactoros\UploadedFile $uploadData Mixed upload data
      * @param array $config Config options
-     *
      * @throws \Josbeir\Filesystem\Exception\FilesystemException When after parsing no valid file resource could be detected
-     *
      * @return void
      */
     public function __construct($uploadData, array $config = [])
@@ -75,7 +73,12 @@ class FileSourceNormalizer
         }
 
         if (!is_resource($this->resource)) {
-            throw new FilesystemException(sprintf('Passed file (%s) does not contain a valid resource', $this->filename ?: 'unknown'));
+            throw new FilesystemException(
+                sprintf(
+                    'Passed file (%s) does not contain a valid resource',
+                    $this->filename ?: 'unknown'
+                )
+            );
         }
     }
 
@@ -83,7 +86,6 @@ class FileSourceNormalizer
      * Handle UploadedFile
      *
      * @param \Laminas\Diactoros\UploadedFile $uploadedFile Instance of an UploadedFile
-     *
      * @return void
      */
     protected function _handleUploadedFile(UploadedFile $uploadedFile): void
@@ -101,7 +103,6 @@ class FileSourceNormalizer
      * Handle 'vanilla' $_FILES upload
      *
      * @param array $file Vanilla $_FILES compatible array
-     *
      * @return void
      */
     protected function _handleFilesUpload(array $file): void
@@ -116,7 +117,6 @@ class FileSourceNormalizer
      * Handle path (location) based uploads
      *
      * @param string $path Path to file
-     *
      * @return void
      */
     protected function _handlePathUploads(string $path): void
@@ -143,7 +143,6 @@ class FileSourceNormalizer
      * Return string representation
      *
      * @codeCoverageIgnore
-     *
      * @return string
      */
     public function __toString(): string

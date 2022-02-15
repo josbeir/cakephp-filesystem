@@ -7,13 +7,8 @@ use Cake\Core\InstanceConfigTrait;
 use Cake\Event\EventDispatcherInterface;
 use Cake\Event\EventDispatcherTrait;
 use InvalidArgumentException;
-use Josbeir\Filesystem\FileEntityCollection;
-use Josbeir\Filesystem\FileEntityInterface;
-use Josbeir\Filesystem\FileSourceNormalizer;
-use Josbeir\Filesystem\FilesystemUtils;
-use Josbeir\Filesystem\FormatterInterface;
-use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Filesystem as FlysystemDisk;
+use League\Flysystem\FilesystemAdapter;
 
 /**
  * Filesystem abstraction for flysystem
@@ -28,12 +23,12 @@ class Filesystem implements EventDispatcherInterface
      *
      * @var string
      */
-    const DEFAULT_FS_CONFIG = 'default';
+    public const DEFAULT_FS_CONFIG = 'default';
 
     /**
      * Holds configured instances of this class
      *
-     * @var Filesystem[]
+     * @var \Josbeir\Filesystem\Filesystem[]
      */
     protected static $_instances = [];
 
@@ -82,8 +77,8 @@ class Filesystem implements EventDispatcherInterface
 
     /**
      * Constructor
-     * @param  array $config Configuration
      *
+     * @param  array $config Configuration
      * @return void
      */
     public function __construct(array $config = [])
@@ -93,11 +88,11 @@ class Filesystem implements EventDispatcherInterface
 
     /**
      * Set the adapter interface
-     * @param \League\Flysystem\FilesystemAdapter $adapter Adapter interface
      *
+     * @param \League\Flysystem\FilesystemAdapter $adapter Adapter interface
      * @return $this
      */
-    public function setAdapter(FilesystemAdapter $adapter): self
+    public function setAdapter(FilesystemAdapter $adapter)
     {
         $this->_adapter = $adapter;
 
@@ -108,7 +103,6 @@ class Filesystem implements EventDispatcherInterface
      * Get current adapter
      *
      * @throws \InvalidArgumentException When adapter could not be located
-     *
      * @return \League\Flysystem\FilesystemAdapter
      */
     public function getAdapter(): FilesystemAdapter
@@ -150,10 +144,9 @@ class Filesystem implements EventDispatcherInterface
      *
      * @param string $formatter Name or formatter class
      * @param array $config Config parameters passed to the formatter on creation
-     *
      * @return $this
      */
-    public function setFormatter($formatter, array $config = []): self
+    public function setFormatter($formatter, array $config = [])
     {
         $this->_formatter = $this->getFormatterClass($formatter);
 
@@ -162,8 +155,8 @@ class Filesystem implements EventDispatcherInterface
 
     /**
      * Returns a new configured formatter instance
-     * @see \Josbeir\Filesystem\FormatterInterface::__construct
      *
+     * @see \Josbeir\Filesystem\FormatterInterface::__construct
      * @param string $filename Original filename
      * @param array $config Configuration settings passed to formatter
      * @return \Josbeir\Filesystem\FormatterInterface
@@ -193,9 +186,7 @@ class Filesystem implements EventDispatcherInterface
      * Return formatter className
      *
      * @param string $name Name of formatter, can be a shortname or FQCN
-     *
      * @throws \InvalidArgumentException When formatter could not be found
-     *
      * @return string
      */
     public function getFormatterClass($name = null): string
@@ -227,7 +218,6 @@ class Filesystem implements EventDispatcherInterface
      * `formatter` name/classname of the formatter to use
      * `data` data to be passed to the formatter
      * *All other options are passed to the formatter configuration instance*
-     *
      * @return \Josbeir\Filesystem\FileEntityInterface Either the destination path or null
      * @throws \Josbeir\Filesystem\Exception\FilesystemException
      */
@@ -386,7 +376,7 @@ class Filesystem implements EventDispatcherInterface
      *
      * @return $this
      */
-    public function reset(): self
+    public function reset()
     {
         $this->_formatter = null;
         $this->_adapter = null;
@@ -399,7 +389,6 @@ class Filesystem implements EventDispatcherInterface
      *
      * @param string $method Method to call
      * @param array $parameters Paramters to pass
-     *
      * @return mixed
      */
     public function __call($method, $parameters)

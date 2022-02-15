@@ -8,8 +8,6 @@ use Cake\Collection\CollectionInterface;
 use Cake\Collection\CollectionTrait;
 use InvalidArgumentException;
 use IteratorIterator;
-use Josbeir\Filesystem\FileEntityInterface;
-use Josbeir\Filesystem\FilesystemRegistry;
 use Traversable;
 
 /**
@@ -23,7 +21,6 @@ final class FileEntityCollection extends IteratorIterator implements CollectionI
      * Constructor
      *
      * @param array|\Traversable $entities File entities array.
-     *
      * @throws \InvalidArgumentException If passed incorrect type for items.
      */
     public function __construct($entities)
@@ -48,7 +45,7 @@ final class FileEntityCollection extends IteratorIterator implements CollectionI
      * @param string $filesystem Filesystem name, used to generate the correct entity
      * @return self
      */
-    public static function createFromArray(array $entities, string $filesystem = null): self
+    public static function createFromArray(array $entities, ?string $filesystem = null): self
     {
         foreach ($entities as &$entity) {
             if (!$entity instanceof FileEntityInterface) {
@@ -74,7 +71,6 @@ final class FileEntityCollection extends IteratorIterator implements CollectionI
      * object.
      *
      * @codeCoverageIgnore
-     *
      * @return array
      */
     public function __debugInfo()

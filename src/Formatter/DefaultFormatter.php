@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace Josbeir\Filesystem\Formatter;
 
 use Cake\Core\InstanceConfigTrait;
-use Cake\Filesystem\File;
 use Josbeir\Filesystem\FormatterInterface;
-use SplFileInfo;
 
 /**
  * Simple formatter, just returns the filename
@@ -39,7 +37,7 @@ class DefaultFormatter implements FormatterInterface
     protected $_info;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function __construct(string $filename, $data = null, array $config = [])
     {
@@ -50,7 +48,7 @@ class DefaultFormatter implements FormatterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getBaseName(): string
     {
@@ -78,7 +76,7 @@ class DefaultFormatter implements FormatterInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getPath(): string
     {
@@ -91,7 +89,6 @@ class DefaultFormatter implements FormatterInterface
      * Return filesystem safe string
      *
      * @param string $value String to make safe
-     *
      * @return string
      */
     public function safe(string $value): string

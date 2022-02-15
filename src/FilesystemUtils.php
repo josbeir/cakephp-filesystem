@@ -10,7 +10,6 @@ class FilesystemUtils
      *
      * @link http://php.net/manual/en/features.file-upload.multiple.php
      * @param array $files denormalized $_FILES structure
-     *
      * @return array
      */
     public static function normalizeFilesArray(array $files): array

@@ -18,7 +18,6 @@ interface FileEntityInterface extends JsonSerializable
      * Return the file entity path
      *
      * @param string $path Entity path
-     *
      * @return self
      */
     public function setPath(string $path): self;
