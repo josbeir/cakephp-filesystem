@@ -234,7 +234,7 @@ class Filesystem implements EventDispatcherInterface
     /**
      * Upload a file
      *
-     * @param string|array|\Zend\Diactoros\UploadedFile $file Uploaded file
+     * @param string|array|\Laminas\Diactoros\UploadedFile $file Uploaded file
      * @param array $config Configuration
      *
      * Configuration options
