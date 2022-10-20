@@ -70,11 +70,11 @@ The configuration options defined for each 'filestem' are passed directly to the
 return [
     'Filesystem' => [
         'default' => [
-            'adapter' => 'Local', // default
+            'adapter' => 'League\Flysystem\Local\LocalFilesystemAdapter', // default
             'adapterArguments' => [ WWW_ROOT . 'files' ]
         ],
         'other' => [
-            'adapter' => 'Local',
+            'adapter' => 'League\Flysystem\Local\LocalFilesystemAdapter',
             'adapterArguments' => [ WWW_ROOT . 'cache' ],
             'entityClass' => '\My\Cool\EntityClass',
             'formatter' => '\My\Cool\Formatter'
