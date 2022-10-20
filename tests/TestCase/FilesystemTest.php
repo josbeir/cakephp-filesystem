@@ -6,7 +6,7 @@ use Cake\Event\EventList;
 use Cake\ORM\Entity;
 use Cake\TestSuite\TestCase;
 use Josbeir\Filesystem\Filesystem;
-use Zend\Diactoros\UploadedFile;
+use Laminas\Diactoros\UploadedFile;
 
 class FilesystemTest extends TestCase
 {
@@ -284,7 +284,7 @@ class FilesystemTest extends TestCase
     }
 
     /**
-     * Test file uploads using Zend\Diactoros\UploadedFile
+     * Test file uploads using Laminas\Diactoros\UploadedFile
      */
     public function testUploadedFileUpload()
     {

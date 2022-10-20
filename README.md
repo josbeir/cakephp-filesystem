@@ -29,7 +29,7 @@ CakePHP filesystem plugin using [Flysystem](http://flysystem.thephpleague.com/do
 ## Why
 
 - Easy access to Flysystem filesystems in your application
-- Upload normalization, accepts $_FILES, Zend\Diactoros\UploadedFile or just a path on the local FS
+- Upload normalization, accepts $_FILES, Laminas\Diactoros\UploadedFile or just a path on the local FS
 - Files are represented by customisable and json serialisable entities, Multiple files are returned in a custom [Collection](https://book.cakephp.org/3.0/en/core-libraries/collections.html) instance.
 - A trait is available, use it everywhere in your app
 - Customizable path/filename formatting during upload, custom formatters are possible, ships with a Default and EntityFormatter.
@@ -386,7 +386,7 @@ return [
     'Filesystem' => [
         'default' => [
             'adapter' => 'Local',
-            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],            
+            'adapterArguments' => [ WWW_ROOT . 'assets' . DS . 'local' ],
             'normalizer' => [
                 'hashingAlgo' => 'sha1'
             ]
